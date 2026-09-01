@@ -1,0 +1,233 @@
+@model SecurePass.Models.ViewModels.PasswordHealthViewModel
+@{
+    ViewData["Title"] = "Password Vault Health Analyzer";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fa-solid fa-heart-pulse text-danger"></i> Vault Health & Vulnerability Audit</h1>
+        <p class="page-subtitle">Identify weak credentials, credential stuffing risks, and expired passwords</p>
+    </div>
+    <div>
+        <a asp-controller="Vault" asp-action="Index" class="btn-cyber-outline">
+            <i class="fa-solid fa-vault"></i> Open Vault
+        </a>
+    </div>
+</div>
+
+<!-- Health Banner Card -->
+<div class="cyber-card mb-4 p-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-3 text-center border-end border-secondary opacity-75">
+            <div class="circular-gauge-wrapper my-2">
+                <svg class="circular-gauge-svg" viewBox="0 0 100 100">
+                    <circle class="circular-gauge-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="circular-gauge-meter" cx="50" cy="50" r="45" 
+                            style="stroke-dashoffset: @(283 - (Model.OverallHealthPercentage / 100.0 * 283)); stroke: @Model.HealthStatusColor;">
+                    </circle>
+                </svg>
+                <div class="circular-gauge-content">
+                    <div class="circular-gauge-number" style="color: @Model.HealthStatusColor;">@Model.OverallHealthPercentage%</div>
+                    <div class="circular-gauge-unit">Health</div>
+                </div>
+            </div>
+            <div class="fw-bold text-theme-primary mt-2">@Model.HealthStatus</div>
+        </div>
+
+        <div class="col-lg-9">
+            <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-clipboard-check me-2 text-success"></i> Actionable Security Recommendations</h5>
+            <div class="d-flex flex-column gap-2 mb-3">
+                @foreach (var rec in Model.ActionableRecommendations)
+                {
+                    <div class="d-flex align-items-start gap-2 p-2 rounded-3" style="background: rgba(8, 14, 30, 0.6);">
+                        <i class="fa-solid fa-triangle-exclamation text-warning mt-1"></i>
+                        <span class="text-theme-primary small">@rec</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Breakdown Cards Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="cyber-card stat-card">
+            <div class="stat-info">
+                <div class="stat-label">Weak Passwords</div>
+                <div class="stat-value text-danger">@Model.WeakCount</div>
+            </div>
+            <div class="stat-icon red"><i class="fa-solid fa-skull"></i></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="cyber-card stat-card">
+            <div class="stat-info">
+                <div class="stat-label">Reused Credentials</div>
+                <div class="stat-value text-warning">@Model.DuplicateCount</div>
+            </div>
+            <div class="stat-icon orange"><i class="fa-solid fa-copy"></i></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="cyber-card stat-card">
+            <div class="stat-info">
+                <div class="stat-label">Older Than 90 Days</div>
+                <div class="stat-value text-danger">@Model.ExpiredCount</div>
+            </div>
+            <div class="stat-icon red"><i class="fa-solid fa-calendar-xmark"></i></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="cyber-card stat-card">
+            <div class="stat-info">
+                <div class="stat-label">Strong Passwords</div>
+                <div class="stat-value text-success">@Model.StrongCount</div>
+            </div>
+            <div class="stat-icon green"><i class="fa-solid fa-shield-check"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Vulnerability Tabs -->
+<div class="cyber-card">
+    <ul class="nav nav-pills mb-3 gap-2" id="healthTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="btn btn-sm btn-cyber-outline active" id="weak-tab" data-bs-toggle="tab" data-bs-target="#weakPane" type="button" role="tab">
+                <i class="fa-solid fa-skull text-danger me-1"></i> Weak Passwords (@Model.WeakCount)
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="btn btn-sm btn-cyber-outline" id="duplicate-tab" data-bs-toggle="tab" data-bs-target="#dupPane" type="button" role="tab">
+                <i class="fa-solid fa-copy text-warning me-1"></i> Reused / Duplicates (@Model.DuplicateCount)
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="btn btn-sm btn-cyber-outline" id="expired-tab" data-bs-toggle="tab" data-bs-target="#expPane" type="button" role="tab">
+                <i class="fa-solid fa-clock-rotate-left text-danger me-1"></i> Older Than 90 Days (@Model.ExpiredCount)
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Weak Passwords Pane -->
+        <div class="tab-pane fade show active" id="weakPane" role="tabpanel">
+            @if (Model.WeakPasswords.Any())
+            {
+                <div class="cyber-table-wrapper border-0">
+                    <table class="cyber-table">
+                        <thead>
+                            <tr>
+                                <th>Account Title</th>
+                                <th>Category</th>
+                                <th>Score</th>
+                                <th>Strength</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.WeakPasswords)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-theme-primary">@item.Title</td>
+                                    <td><span class="badge-category">@item.Category</span></td>
+                                    <td class="text-danger fw-bold">@item.StrengthScore/100</td>
+                                    <td><span class="badge-strength weak"><i class="fa-solid fa-circle-exclamation me-1"></i> @item.PasswordStrength</span></td>
+                                    <td class="text-end">
+                                        <a asp-controller="Vault" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-cyber-primary py-1 px-3">
+                                            <i class="fa-solid fa-wand-magic-sparkles"></i> Upgrade Password
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4 text-success">
+                    <i class="fa-solid fa-circle-check fs-2 mb-2"></i>
+                    <div>No weak passwords detected! All saved credentials have good entropy.</div>
+                </div>
+            }
+        </div>
+
+        <!-- Duplicates Pane -->
+        <div class="tab-pane fade" id="dupPane" role="tabpanel">
+            @if (Model.DuplicateGroups.Any())
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var group in Model.DuplicateGroups)
+                    {
+                        <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-warning"><i class="fa-solid fa-triangle-exclamation me-1"></i> Reused across @group.Count accounts:</span>
+                                <span class="font-monospace text-muted small">@group.MaskedPassword</span>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var acc in group.Items)
+                                {
+                                    <a asp-controller="Vault" asp-action="Edit" asp-route-id="@acc.Id" class="btn btn-sm btn-cyber-outline py-1 px-2">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i> @acc.Title (@acc.Category)
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4 text-success">
+                    <i class="fa-solid fa-circle-check fs-2 mb-2"></i>
+                    <div>No reused credentials detected. Every saved account has a unique password.</div>
+                </div>
+            }
+        </div>
+
+        <!-- Expired Passwords Pane -->
+        <div class="tab-pane fade" id="expPane" role="tabpanel">
+            @if (Model.ExpiredPasswords.Any())
+            {
+                <div class="cyber-table-wrapper border-0">
+                    <table class="cyber-table">
+                        <thead>
+                            <tr>
+                                <th>Account Title</th>
+                                <th>Category</th>
+                                <th>Age</th>
+                                <th>Created Date</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ExpiredPasswords)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-theme-primary">@item.Title</td>
+                                    <td><span class="badge-category">@item.Category</span></td>
+                                    <td class="text-danger fw-bold">@item.AgeInDays days old</td>
+                                    <td class="text-muted small">@item.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                    <td class="text-end">
+                                        <a asp-controller="Vault" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-cyber-primary py-1 px-3">
+                                            <i class="fa-solid fa-rotate me-1"></i> Rotate Password
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4 text-success">
+                    <i class="fa-solid fa-circle-check fs-2 mb-2"></i>
+                    <div>All passwords are up to date and within the 90-day recommended rotation cycle.</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+

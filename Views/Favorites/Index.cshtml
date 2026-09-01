@@ -1,0 +1,112 @@
+@model List<SecurePass.Models.ViewModels.PasswordVaultItemViewModel>
+@{
+    ViewData["Title"] = "Favorite Passwords";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fa-solid fa-star text-warning"></i> Favorite Accounts</h1>
+        <p class="page-subtitle">Starred high-priority credentials for rapid access</p>
+    </div>
+    <div>
+        <a asp-controller="Vault" asp-action="Index" class="btn-cyber-outline">
+            <i class="fa-solid fa-vault"></i> View All Passwords
+        </a>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="row g-3">
+        @foreach (var item in Model)
+        {
+            <div class="col-lg-4 col-md-6">
+                <div class="cyber-card h-100 d-flex flex-column justify-content-between p-4">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="text-theme-primary fw-bold m-0">@item.Title</h5>
+                            <i class="fa-solid fa-star text-warning"></i>
+                        </div>
+                        <span class="badge-category mb-3">@item.Category</span>
+
+                        <div class="p-3 rounded-3 mb-3" style="background: rgba(8, 14, 30, 0.7); border: 1px solid var(--border-color);">
+                            <div class="text-theme-muted small mb-1">Username / Email</div>
+                            <div class="cell-username-text small mb-2">@(item.Username ?? "—")</div>
+                            <hr class="border-secondary opacity-25 my-2">
+                            <div class="text-theme-muted small mb-1">Encrypted Password</div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="cell-masked-dots" id="fav-pass-@item.Id">••••••••••••</span>
+                                <div class="d-flex gap-1">
+                                    <button type="button" class="btn btn-sm btn-link text-primary p-0" title="Reveal" onclick="revealFavPass(@item.Id, this)">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-link text-info p-0" title="Copy" onclick="copyFavPass(@item.Id)">
+                                        <i class="fa-solid fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary opacity-75">
+                        @if (item.PasswordStrength == "Very Strong")
+                        {
+                            <span class="badge-strength very-strong">
+                                <i class="fa-solid fa-shield-halved me-1"></i> Very Strong
+                            </span>
+                        }
+                        else if (item.PasswordStrength == "Strong")
+                        {
+                            <span class="badge-strength strong">
+                                <i class="fa-solid fa-shield-check me-1"></i> Strong
+                            </span>
+                        }
+                        else if (item.PasswordStrength == "Medium")
+                        {
+                            <span class="badge-strength medium">
+                                <i class="fa-solid fa-triangle-exclamation me-1"></i> Medium
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge-strength weak">
+                                <i class="fa-solid fa-circle-exclamation me-1"></i> Weak
+                            </span>
+                        }
+                        <a asp-controller="Vault" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-cyber-outline py-1 px-3">
+                            Details &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="cyber-card text-center py-5">
+        <i class="fa-solid fa-star text-muted fs-1 mb-3"></i>
+        <h5 class="text-theme-primary">No Favorite Passwords Yet</h5>
+        <p class="text-secondary small">Click the star icon on any password in your vault to bookmark it here for fast retrieval.</p>
+        <a asp-controller="Vault" asp-action="Index" class="btn-cyber-primary mt-2">
+            <i class="fa-solid fa-vault"></i> Open Vault
+        </a>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        const antiForgeryToken = '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)?.[1] || '';
+
+        function revealFavPass(id, btn) {
+            const target = document.getElementById('fav-pass-' + id);
+            SecurePassVault.revealPassword(id, btn, target, antiForgeryToken);
+        }
+
+        function copyFavPass(id) {
+            const target = document.getElementById('fav-pass-' + id);
+            SecurePassVault.copyToClipboard(target.innerText, 'Password');
+        }
+    </script>
+}
+

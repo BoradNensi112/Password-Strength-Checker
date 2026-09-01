@@ -1,0 +1,218 @@
+﻿@model SecurePass.Models.ViewModels.PasswordVaultItemViewModel
+@{
+    ViewData["Title"] = "Password Details - " + Model.Title;
+    var analysis = ViewBag.Analysis as SecurePass.Models.ViewModels.PasswordAnalysisResult;
+    var decryptedPass = ViewBag.DecryptedPassword as string ?? "";
+}
+
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+        <div class="brand-icon" style="width: 48px; height: 48px; font-size: 1.4rem;">
+            <i class="fa-solid @(Model.Category == "Banking" ? "fa-building-columns" : Model.Category == "Work" ? "fa-briefcase" : Model.Category == "Social" ? "fa-share-nodes" : "fa-key")"></i>
+        </div>
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h1 class="page-title m-0">@Model.Title</h1>
+                <span class="badge-category">@Model.Category</span>
+                @if (Model.IsFavorite)
+                {
+                    <i class="fa-solid fa-star text-warning"></i>
+                }
+            </div>
+            <p class="page-subtitle m-0">Stored in zero-knowledge encrypted vault</p>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-cyber-primary">
+            <i class="fa-solid fa-pen-to-square"></i> Edit Password
+        </a>
+        <a asp-action="Index" class="btn-cyber-outline">
+            <i class="fa-solid fa-arrow-left"></i> Back to Vault
+        </a>
+    </div>
+</div>
+
+@if (Model.IsExpired)
+{
+    <div class="cyber-alert cyber-alert-warning mb-4">
+        <i class="fa-solid fa-clock-rotate-left fs-4 text-warning"></i>
+        <div class="flex-grow-1">
+            <strong>Password Rotation Reminder:</strong> This password was created @Model.AgeInDays days ago (>90 days). Industry standards recommend rotating credentials periodically.
+        </div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-cyber-primary">Rotate Now</a>
+    </div>
+}
+
+<div class="row g-4">
+    <!-- Main Account Details -->
+    <div class="col-lg-7">
+        <div class="cyber-card mb-4">
+            <h5 class="text-theme-primary fw-bold mb-4"><i class="fa-solid fa-id-badge me-2 text-primary"></i> Account Credentials</h5>
+
+            <div class="d-flex flex-column gap-3">
+                <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                    <div class="text-muted small mb-1">Website or App URL</div>
+                    @if (!string.IsNullOrEmpty(Model.Website))
+                    {
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-theme-primary fw-semibold">@Model.Website</span>
+                            <a href="@Model.Website" target="_blank" class="btn btn-sm btn-cyber-outline py-1 px-2">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Open
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No website specified</span>
+                    }
+                </div>
+
+                <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                    <div class="text-muted small mb-1">Username / Email</div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-theme-primary font-monospace fw-semibold" id="detailsUsername">@(Model.Username ?? "—")</span>
+                        @if (!string.IsNullOrEmpty(Model.Username))
+                        {
+                            <button type="button" class="btn btn-sm btn-cyber-outline py-1 px-2" onclick="SecurePassVault.copyToClipboard('@Model.Username', 'Username')">
+                                <i class="fa-solid fa-copy"></i> Copy
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                    <div class="text-muted small mb-1">Master Encrypted Password</div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="font-monospace fs-5 fw-bold text-theme-primary text-break" id="detailsPassword">••••••••••••</span>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-cyber-outline py-1 px-3" id="detailsRevealBtn" onclick="revealDetailsPass()">
+                                <i class="fa-solid fa-eye"></i> Reveal
+                            </button>
+                            <button type="button" class="btn btn-sm btn-cyber-primary py-1 px-3" onclick="copyDetailsPass()">
+                                <i class="fa-solid fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                        <div class="text-muted small mb-1">Encrypted Notes</div>
+                        <div class="text-theme-primary small text-break" style="white-space: pre-wrap;">@Model.Notes</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Metadata & Danger Zone -->
+        <div class="cyber-card">
+            <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-circle-info me-2 text-info"></i> Timestamp Metadata</h5>
+            <div class="row g-3 text-secondary small mb-4">
+                <div class="col-6">
+                    <div>Created Date:</div>
+                    <strong class="text-theme-primary">@Model.CreatedAt.ToString("MMMM dd, yyyy HH:mm")</strong>
+                </div>
+                <div class="col-6">
+                    <div>Last Updated:</div>
+                    <strong class="text-theme-primary">@Model.UpdatedAt.ToString("MMMM dd, yyyy HH:mm")</strong>
+                </div>
+            </div>
+
+            <div class="pt-3 border-top border-secondary opacity-75 d-flex justify-content-between align-items-center">
+                <span class="text-danger small"><i class="fa-solid fa-triangle-exclamation me-1"></i> Irreversible Action</span>
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post" id="detailsDelForm">
+                    @Html.AntiForgeryToken()
+                    <button type="button" class="btn btn-sm btn-cyber-danger" onclick="SecurePassVault.confirmDelete('detailsDelForm', '@Model.Title')">
+                        <i class="fa-solid fa-trash-can me-1"></i> Delete Password Permanently
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Strength & Security Breakdown -->
+    <div class="col-lg-5">
+        <div class="cyber-card">
+            <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-shield-halved me-2 text-primary"></i> Cryptographic Strength</h5>
+
+            <!-- Gauge -->
+            <div class="circular-gauge-wrapper my-3">
+                <svg class="circular-gauge-svg" viewBox="0 0 100 100">
+                    <circle class="circular-gauge-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="circular-gauge-meter" cx="50" cy="50" r="45" 
+                            style="stroke-dashoffset: @(283 - (Model.StrengthScore / 100.0 * 283)); stroke: @(Model.StrengthScore >= 90 ? "#10B981" : Model.StrengthScore >= 70 ? "#22C55E" : Model.StrengthScore >= 40 ? "#F59E0B" : "#EF4444");">
+                    </circle>
+                </svg>
+                <div class="circular-gauge-content">
+                    <div class="circular-gauge-number">@Model.StrengthScore</div>
+                    <div class="circular-gauge-unit">@Model.PasswordStrength</div>
+                </div>
+            </div>
+
+            <!-- Metrics -->
+            @if (analysis != null)
+            {
+                <div class="row g-2 text-center mb-3">
+                    <div class="col-6">
+                        <div class="p-2 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                            <div class="text-muted small">Brute-Force Crack</div>
+                            <div class="fw-bold text-theme-primary small">@analysis.CrackTimeFormatted</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                            <div class="text-muted small">Entropy</div>
+                            <div class="fw-bold text-cyan small">@analysis.EntropyBits bits</div>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="rule-checklist">
+                    @foreach (var rule in analysis.Rules)
+                    {
+                        <li class="rule-item @(rule.Passed ? "passed" : "")">
+                            <div class="rule-icon">
+                                <i class="fa-solid @(rule.Passed ? "fa-check" : "fa-xmark")"></i>
+                            </div>
+                            <span>@rule.RuleName</span>
+                        </li>
+                    }
+                </ul>
+
+                @if (analysis.Suggestions.Any())
+                {
+                    <div class="suggestion-card mt-3">
+                        <div class="suggestion-title">
+                            <i class="fa-solid fa-lightbulb"></i> Improvement Suggestions
+                        </div>
+                        <ul class="suggestion-list">
+                            @foreach (var sug in analysis.Suggestions)
+                            {
+                                <li><i class="fa-solid fa-triangle-exclamation"></i> <span>@sug</span></li>
+                            }
+                        </ul>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const antiForgeryToken = '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)?.[1] || '';
+
+        function revealDetailsPass() {
+            const btn = document.getElementById('detailsRevealBtn');
+            const target = document.getElementById('detailsPassword');
+            SecurePassVault.revealPassword(@Model.Id, btn, target, antiForgeryToken);
+        }
+
+        function copyDetailsPass() {
+            const target = document.getElementById('detailsPassword');
+            SecurePassVault.copyToClipboard(target.innerText, 'Password');
+        }
+    </script>
+}
+

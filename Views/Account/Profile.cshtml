@@ -1,0 +1,143 @@
+﻿@model SecurePass.Models.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fa-solid fa-user-shield"></i> User Profile</h1>
+        <p class="page-subtitle">Manage your account identity and master security credentials</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Profile Summary Card -->
+    <div class="col-lg-4">
+        <div class="cyber-card text-center mb-4">
+            <div class="user-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                @(Model.FullName.Length > 0 ? Model.FullName.Substring(0, 1).ToUpper() : "U")
+            </div>
+            <h4 class="text-theme-primary fw-bold mb-1">@Model.FullName</h4>
+            <p class="text-muted small mb-3">@Model.Email</p>
+            <span class="badge-strength very-strong mb-4">
+                <i class="fa-solid fa-shield-halved"></i> Encrypted Vault Active
+            </span>
+
+            <div class="d-flex justify-content-around p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                <div>
+                    <div class="fs-4 fw-bold text-primary">@Model.TotalPasswordsSaved</div>
+                    <div class="text-muted small">Passwords</div>
+                </div>
+                <div class="border-end border-secondary opacity-25"></div>
+                <div>
+                    <div class="fs-4 fw-bold text-warning">@Model.FavoriteCount</div>
+                    <div class="text-muted small">Favorites</div>
+                </div>
+                <div class="border-end border-secondary opacity-25"></div>
+                <div>
+                    <div class="fs-4 fw-bold text-success">@Model.HealthScore%</div>
+                    <div class="text-muted small">Health</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-card">
+            <h6 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-clock-rotate-left me-2 text-info"></i> Account Metadata</h6>
+            <div class="d-flex flex-column gap-3 text-secondary small">
+                <div class="d-flex justify-content-between">
+                    <span>Account Created:</span>
+                    <strong class="text-theme-primary">@Model.CreatedAt.ToString("MMM dd, yyyy")</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Last Login:</span>
+                    <strong class="text-theme-primary">@(Model.LastLoginAt?.ToString("MMM dd, yyyy HH:mm") ?? "Active Now")</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Encryption Standard:</span>
+                    <strong class="text-success">AES-256 + BCrypt</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forms Column -->
+    <div class="col-lg-8">
+        <!-- Update Profile Details -->
+        <div class="cyber-card mb-4">
+            <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-id-card me-2 text-primary"></i> Personal Details</h5>
+            <form asp-action="UpdateProfile" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="Email" />
+
+                <div class="cyber-form-group">
+                    <label asp-for="FullName" class="cyber-label">Full Name</label>
+                    <input asp-for="FullName" class="cyber-input" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="cyber-form-group">
+                    <label class="cyber-label">Email Address (Read-only)</label>
+                    <input value="@Model.Email" class="cyber-input" disabled style="opacity: 0.6;" />
+                </div>
+
+                <button type="submit" class="btn-cyber-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Profile Details
+                </button>
+            </form>
+        </div>
+
+        <!-- Change Master Password -->
+        <div class="cyber-card">
+            <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-key me-2 text-warning"></i> Change Master Password</h5>
+            <form asp-action="ChangePassword" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="cyber-form-group">
+                    <label class="cyber-label">Current Master Password</label>
+                    <input name="CurrentPassword" type="password" class="cyber-input" required placeholder="••••••••••••" />
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6 cyber-form-group">
+                        <label class="cyber-label">New Master Password</label>
+                        <input name="NewPassword" id="profileNewPass" type="password" class="cyber-input" required placeholder="Min. 8 characters" />
+                    </div>
+                    <div class="col-md-6 cyber-form-group">
+                        <label class="cyber-label">Confirm New Password</label>
+                        <input name="ConfirmNewPassword" type="password" class="cyber-input" required placeholder="Repeat new password" />
+                    </div>
+                </div>
+
+                <!-- Live Strength Bar -->
+                <div class="strength-meter-container mb-3">
+                    <div class="strength-bar-track">
+                        <div class="strength-bar-fill" id="profileStrengthBar"></div>
+                    </div>
+                    <div class="strength-meta">
+                        <span class="strength-text" id="profileStrengthText">Empty</span>
+                        <span class="strength-score-label" id="profileScoreText">0/100</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-cyber-success">
+                    <i class="fa-solid fa-shield-halved"></i> Update Master Password
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            bindPasswordStrengthChecker({
+                inputSelector: '#profileNewPass',
+                barSelector: '#profileStrengthBar',
+                strengthTextSelector: '#profileStrengthText',
+                scoreTextSelector: '#profileScoreText'
+            });
+        });
+    </script>
+}
+

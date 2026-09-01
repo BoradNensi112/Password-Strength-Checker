@@ -1,0 +1,358 @@
+﻿@model SecurePass.Models.ViewModels.PasswordVaultCreateEditModel
+@{
+    ViewData["Title"] = "Add New Password";
+    var categories = ViewBag.Categories as List<string> ?? new List<string>();
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fa-solid fa-circle-plus"></i> Add Password to Vault</h1>
+        <p class="page-subtitle">Encrypt and store credentials with real-time strength analysis</p>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn-cyber-outline">
+            <i class="fa-solid fa-arrow-left"></i> Back to Vault
+        </a>
+    </div>
+</div>
+
+<form asp-action="Create" method="post" id="vaultAddForm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="StrengthScore" id="hiddenStrengthScore" />
+    <input type="hidden" asp-for="PasswordStrength" id="hiddenPasswordStrength" />
+
+    <div class="row g-4">
+        <!-- Form Left Column -->
+        <div class="col-lg-7">
+            <div class="cyber-card">
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                <!-- Duplicate Warning Container -->
+                <div id="duplicateWarningBox" class="cyber-alert cyber-alert-warning mb-3" style="display: none;"></div>
+
+                <div class="cyber-form-group">
+                    <label asp-for="Title" class="cyber-label">Password Title <span class="text-danger">*</span></label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-tag input-icon"></i>
+                        <input asp-for="Title" class="cyber-input" placeholder="e.g., SBI Net Banking, GitHub DevOps, Instagram Personal" required />
+                    </div>
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                    <small class="text-muted" style="font-size: 0.75rem;">Give every account a distinct name to quickly locate it later.</small>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6 cyber-form-group">
+                        <label asp-for="Website" class="cyber-label">Website or App URL</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-globe input-icon"></i>
+                            <input asp-for="Website" class="cyber-input" placeholder="https://github.com" />
+                        </div>
+                        <span asp-validation-for="Website" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 cyber-form-group">
+                        <label asp-for="Username" class="cyber-label">Username or Email</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-user input-icon"></i>
+                            <input asp-for="Username" class="cyber-input" placeholder="user@domain.com" />
+                        </div>
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6 cyber-form-group">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label asp-for="Password" class="cyber-label mb-0">Password <span class="text-danger">*</span></label>
+                            <button type="button" class="btn btn-sm btn-link text-primary p-0 text-decoration-none small" onclick="openGeneratorModal()">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Strong
+                            </button>
+                        </div>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input asp-for="Password" type="password" id="vaultPasswordInput" class="cyber-input" placeholder="Enter secure password" value="@Model.Password" required />
+                            <button type="button" class="input-action-btn" onclick="togglePasswordVisibility('vaultPasswordInput', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 cyber-form-group">
+                        <label asp-for="ConfirmPassword" class="cyber-label">Confirm Password</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-shield-check input-icon"></i>
+                            <input asp-for="ConfirmPassword" type="password" id="vaultConfirmPasswordInput" class="cyber-input" placeholder="Repeat password" value="@Model.ConfirmPassword" />
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6 cyber-form-group">
+                        <label asp-for="Category" class="cyber-label">Account Category</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-folder input-icon"></i>
+                            <select asp-for="Category" class="cyber-select">
+                                @foreach (var cat in categories)
+                                {
+                                    <option value="@cat">@cat</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 cyber-form-group d-flex align-items-center pt-4">
+                        <label class="d-flex align-items-center gap-2 text-secondary" style="cursor: pointer;">
+                            <input asp-for="IsFavorite" type="checkbox" class="form-check-input bg-dark border-secondary m-0" />
+                            <span><i class="fa-solid fa-star text-warning me-1"></i> Mark as Favorite Account</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="cyber-form-group">
+                    <label asp-for="Notes" class="cyber-label">Encrypted Notes (Optional)</label>
+                    <textarea asp-for="Notes" class="cyber-textarea" rows="3" placeholder="Security questions, recovery codes, server IPs, etc."></textarea>
+                    <span asp-validation-for="Notes" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-3 pt-2">
+                    <button type="submit" class="btn-cyber-primary">
+                        <i class="fa-solid fa-lock"></i> Encrypt & Save to Vault
+                    </button>
+                    <a asp-action="Index" class="btn-cyber-outline">Cancel</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Live Analysis Panel -->
+        <div class="col-lg-5">
+            <div class="cyber-card mb-4">
+                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-shield-halved me-2 text-primary"></i> Live Strength Analysis</h5>
+                
+                <!-- Circular Score Gauge -->
+                <div class="circular-gauge-wrapper my-3">
+                    <svg class="circular-gauge-svg" viewBox="0 0 100 100">
+                        <circle class="circular-gauge-bg" cx="50" cy="50" r="45"></circle>
+                        <circle class="circular-gauge-meter" id="gaugeMeter" cx="50" cy="50" r="45"></circle>
+                    </svg>
+                    <div class="circular-gauge-content">
+                        <div class="circular-gauge-number" id="gaugeNumber">0</div>
+                        <div class="circular-gauge-unit" id="gaugeLevel">Empty</div>
+                    </div>
+                </div>
+
+                <!-- Analysis Summary Pills -->
+                <div class="row g-2 text-center mb-3">
+                    <div class="col-6">
+                        <div class="p-2 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                            <div class="text-muted small">Crack Time</div>
+                            <div class="fw-bold text-theme-primary small" id="crackTimeText">Instant</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                            <div class="text-muted small">Entropy</div>
+                            <div class="fw-bold text-cyan small" id="entropyText">0 bits</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Checklist -->
+                <ul class="rule-checklist">
+                    <li class="rule-item" id="rule-min-length">
+                        <div class="rule-icon"><i class="fa-solid fa-xmark"></i></div>
+                        <span>Minimum 8 Characters (12+ recommended)</span>
+                    </li>
+                    <li class="rule-item" id="rule-upper">
+                        <div class="rule-icon"><i class="fa-solid fa-xmark"></i></div>
+                        <span>Uppercase Letters (Aâ€“Z)</span>
+                    </li>
+                    <li class="rule-item" id="rule-lower">
+                        <div class="rule-icon"><i class="fa-solid fa-xmark"></i></div>
+                        <span>Lowercase Letters (aâ€“z)</span>
+                    </li>
+                    <li class="rule-item" id="rule-numbers">
+                        <div class="rule-icon"><i class="fa-solid fa-xmark"></i></div>
+                        <span>Numeric Digits (0â€“9)</span>
+                    </li>
+                    <li class="rule-item" id="rule-symbols">
+                        <div class="rule-icon"><i class="fa-solid fa-xmark"></i></div>
+                        <span>Special Symbols (!@@#$%^&*)</span>
+                    </li>
+                    <li class="rule-item" id="rule-not-common">
+                        <div class="rule-icon"><i class="fa-solid fa-check"></i></div>
+                        <span>Not a Common Breached Password</span>
+                    </li>
+                </ul>
+
+                <!-- Suggestions Card -->
+                <div class="suggestion-card">
+                    <div class="suggestion-title">
+                        <i class="fa-solid fa-lightbulb"></i> Smart Suggestions
+                    </div>
+                    <ul class="suggestion-list" id="suggestionsList">
+                        <li><i class="fa-solid fa-info-circle text-info"></i> <span>Type a password to receive custom recommendations.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Quick Generator Modal -->
+<div class="modal fade" id="generatorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border-color); backdrop-filter: blur(20px);">
+            <div class="modal-header border-bottom border-secondary opacity-75">
+                <h5 class="modal-title text-theme-primary fw-bold"><i class="fa-solid fa-wand-magic-sparkles text-primary me-2"></i> Password Generator</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="p-3 rounded-3 mb-3 text-center position-relative" style="background: rgba(8, 14, 30, 0.9); border: 1px solid var(--border-color);">
+                    <div class="fs-5 fw-bold font-monospace text-success text-break" id="modalGeneratedPass">Generating...</div>
+                    <span class="badge-strength very-strong mt-2" id="modalStrengthBadge">Score: 98/100</span>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between text-secondary small mb-1">
+                        <span>Password Length</span>
+                        <strong class="text-theme-primary" id="modalLengthVal">16</strong>
+                    </div>
+                    <input type="range" class="form-range" id="modalLengthSlider" min="8" max="32" value="16" />
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="d-flex align-items-center gap-2 text-secondary small" style="cursor: pointer;">
+                            <input type="checkbox" id="modalUpper" checked class="form-check-input bg-dark border-secondary m-0" />
+                            <span>Uppercase (Aâ€“Z)</span>
+                        </label>
+                    </div>
+                    <div class="col-6">
+                        <label class="d-flex align-items-center gap-2 text-secondary small" style="cursor: pointer;">
+                            <input type="checkbox" id="modalLower" checked class="form-check-input bg-dark border-secondary m-0" />
+                            <span>Lowercase (aâ€“z)</span>
+                        </label>
+                    </div>
+                    <div class="col-6">
+                        <label class="d-flex align-items-center gap-2 text-secondary small" style="cursor: pointer;">
+                            <input type="checkbox" id="modalNumbers" checked class="form-check-input bg-dark border-secondary m-0" />
+                            <span>Numbers (0â€“9)</span>
+                        </label>
+                    </div>
+                    <div class="col-6">
+                        <label class="d-flex align-items-center gap-2 text-secondary small" style="cursor: pointer;">
+                            <input type="checkbox" id="modalSymbols" checked class="form-check-input bg-dark border-secondary m-0" />
+                            <span>Symbols (!@@#$)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn-cyber-outline w-50 justify-content-center" onclick="refreshModalPassword()">
+                        <i class="fa-solid fa-arrows-rotate"></i> Regenerate
+                    </button>
+                    <button type="button" class="btn-cyber-success w-50 justify-content-center" onclick="applyGeneratedPassword()">
+                        <i class="fa-solid fa-check"></i> Use This Password
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let modalInstance;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            bindPasswordStrengthChecker({
+                inputSelector: '#vaultPasswordInput',
+                barSelector: null,
+                gaugeMeterSelector: '#gaugeMeter',
+                scoreTextSelector: '#gaugeNumber',
+                strengthTextSelector: '#gaugeLevel',
+                crackTimeSelector: '#crackTimeText',
+                entropySelector: '#entropyText',
+                hiddenScoreSelector: '#hiddenStrengthScore',
+                hiddenStrengthSelector: '#hiddenPasswordStrength',
+                suggestionsListSelector: '#suggestionsList'
+            });
+
+            // Duplicate detection check
+            SecurePassVault.bindDuplicateChecker('#vaultPasswordInput', '#duplicateWarningBox');
+
+            const modalEl = document.getElementById('generatorModal');
+            if (modalEl) {
+                modalInstance = new bootstrap.Modal(modalEl);
+            }
+
+            document.getElementById('modalLengthSlider')?.addEventListener('input', (e) => {
+                document.getElementById('modalLengthVal').innerText = e.target.value;
+                refreshModalPassword();
+            });
+
+            ['modalUpper', 'modalLower', 'modalNumbers', 'modalSymbols'].forEach(id => {
+                document.getElementById(id)?.addEventListener('change', refreshModalPassword);
+            });
+        });
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        function openGeneratorModal() {
+            refreshModalPassword();
+            modalInstance?.show();
+        }
+
+        function refreshModalPassword() {
+            const len = parseInt(document.getElementById('modalLengthSlider').value);
+            const upper = document.getElementById('modalUpper').checked;
+            const lower = document.getElementById('modalLower').checked;
+            const nums = document.getElementById('modalNumbers').checked;
+            const syms = document.getElementById('modalSymbols').checked;
+
+            const res = SecurePassGenerator.generate({
+                length: len,
+                includeUppercase: upper,
+                includeLowercase: lower,
+                includeNumbers: nums,
+                includeSymbols: syms,
+                avoidSimilar: true
+            });
+
+            document.getElementById('modalGeneratedPass').innerText = res.password;
+            const badge = document.getElementById('modalStrengthBadge');
+            if (badge) {
+                badge.innerText = res.strengthLevel + ' (' + res.score + '/100)';
+                badge.className = 'badge-strength mt-2 ' + (res.score >= 90 ? 'very-strong' : (res.score >= 70 ? 'strong' : (res.score >= 40 ? 'medium' : 'weak')));
+            }
+        }
+
+        function applyGeneratedPassword() {
+            const pass = document.getElementById('modalGeneratedPass').innerText;
+            const input = document.getElementById('vaultPasswordInput');
+            const confirmInput = document.getElementById('vaultConfirmPasswordInput');
+
+            input.value = pass;
+            if (confirmInput) confirmInput.value = pass;
+            input.dispatchEvent(new Event('input'));
+
+            modalInstance?.hide();
+
+            SecurePassVault.copyToClipboard(pass, 'Generated password');
+        }
+    </script>
+}
+
+

@@ -1,0 +1,328 @@
+@model SecurePass.Models.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Cybersecurity Dashboard";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fa-solid fa-gauge-high"></i> Security Command Center</h1>
+        <p class="page-subtitle">Real-time status of your zero-knowledge encrypted credentials</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Checker" asp-action="Index" class="btn-cyber-outline">
+            <i class="fa-solid fa-shield-virus"></i> Strength Analyzer
+        </a>
+        <a asp-controller="Vault" asp-action="Create" class="btn-cyber-primary">
+            <i class="fa-solid fa-plus"></i> Add Password
+        </a>
+    </div>
+</div>
+
+<!-- Stat Cards Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="cyber-card stat-card">
+            <div class="stat-info">
+                <div class="stat-label">Total Passwords</div>
+                <div class="stat-value">@Model.TotalPasswords</div>
+            </div>
+            <div class="stat-icon purple">
+                <i class="fa-solid fa-vault"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="cyber-card stat-card">
+            <div class="stat-info">
+                <div class="stat-label">Strong & Elite</div>
+                <div class="stat-value text-success">@(Model.StrongPasswords + Model.VeryStrongPasswords)</div>
+            </div>
+            <div class="stat-icon green">
+                <i class="fa-solid fa-shield-check"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="cyber-card stat-card">
+            <div class="stat-info">
+                <div class="stat-label">Medium Risk</div>
+                <div class="stat-value text-warning">@Model.MediumPasswords</div>
+            </div>
+            <div class="stat-icon orange">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="cyber-card stat-card">
+            <div class="stat-info">
+                <div class="stat-label">Weak / At Risk</div>
+                <div class="stat-value text-danger">@Model.WeakPasswords</div>
+            </div>
+            <div class="stat-icon red">
+                <i class="fa-solid fa-skull-crossbones"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="cyber-card stat-card">
+            <div class="stat-info">
+                <div class="stat-label">Avg Strength</div>
+                <div class="stat-value text-info">@Model.AverageStrengthScore<span class="fs-6 text-muted">/100</span></div>
+            </div>
+            <div class="stat-icon cyan">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="cyber-card stat-card">
+            <div class="stat-info">
+                <div class="stat-label">Health Score</div>
+                <div class="stat-value @(Model.HealthScore >= 80 ? "text-success" : Model.HealthScore >= 60 ? "text-warning" : "text-danger")">
+                    @Model.HealthScore%
+                </div>
+            </div>
+            <div class="stat-icon @(Model.HealthScore >= 80 ? "green" : Model.HealthScore >= 60 ? "orange" : "red")">
+                <i class="fa-solid fa-heart-pulse"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-4">
+        <div class="cyber-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-theme-primary fw-bold mb-0"><i class="fa-solid fa-chart-pie me-2 text-primary"></i> Strength Distribution</h5>
+                <span class="badge-strength very-strong">Live Breakdown</span>
+            </div>
+            <div style="position: relative; height: 240px;">
+                <canvas id="strengthDoughnutChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="cyber-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-theme-primary fw-bold mb-0"><i class="fa-solid fa-chart-simple me-2 text-info"></i> Weekly Vault Activity</h5>
+                <span class="text-muted small">Past 7 Days</span>
+            </div>
+            <div style="position: relative; height: 240px;">
+                <canvas id="activityBarChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="cyber-card h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-shield-halved me-2 text-success"></i> Health Audits</h5>
+                <div class="d-flex flex-column gap-3">
+                    <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-secondary"><i class="fa-solid fa-copy me-2 text-warning"></i> Reused Passwords:</span>
+                            <span class="fw-bold @(Model.DuplicatePasswordsCount > 0 ? "text-warning" : "text-success")">@Model.DuplicatePasswordsCount</span>
+                        </div>
+                    </div>
+                    <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-secondary"><i class="fa-solid fa-calendar-xmark me-2 text-danger"></i> Older than 90 days:</span>
+                            <span class="fw-bold @(Model.ExpiredPasswordsCount > 0 ? "text-danger" : "text-success")">@Model.ExpiredPasswordsCount</span>
+                        </div>
+                    </div>
+                    <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-secondary"><i class="fa-solid fa-star me-2 text-warning"></i> Favorite Accounts:</span>
+                            <span class="fw-bold text-theme-primary">@Model.FavoriteCount</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <a asp-controller="Health" asp-action="Index" class="btn-cyber-outline w-100 justify-content-center mt-3">
+                <i class="fa-solid fa-stethoscope"></i> Full Security Audit
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Passwords Table -->
+<div class="cyber-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="text-theme-primary fw-bold mb-0"><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i> Recently Added Passwords</h5>
+        <a asp-controller="Vault" asp-action="Index" class="text-decoration-none small text-primary fw-semibold">View All Vault (@Model.TotalPasswords) &rarr;</a>
+    </div>
+
+    @if (Model.RecentPasswords.Any())
+    {
+        <div class="cyber-table-wrapper">
+            <table class="cyber-table">
+                <thead>
+                    <tr>
+                        <th>Title / Account</th>
+                        <th>Website / Service</th>
+                        <th>Username / Email</th>
+                        <th>Strength</th>
+                        <th>Score</th>
+                        <th>Saved Date</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.RecentPasswords)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa-solid @(item.Category == "Banking" ? "fa-building-columns text-success" : item.Category == "Social" ? "fa-share-nodes text-primary" : item.Category == "Work" ? "fa-briefcase text-info" : "fa-key text-warning")"></i>
+                                    <a asp-controller="Vault" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-theme-primary fw-semibold">
+                                        @item.Title
+                                    </a>
+                                    @if (item.IsFavorite)
+                                    {
+                                        <i class="fa-solid fa-star text-warning small"></i>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <span class="cell-website-link small">@(item.Website ?? "—")</span>
+                            </td>
+                            <td>
+                                <span class="cell-username-text small">@(item.Username ?? "—")</span>
+                            </td>
+                            <td>
+                                @if (item.PasswordStrength == "Very Strong")
+                                {
+                                    <span class="badge-strength very-strong">
+                                        <i class="fa-solid fa-shield-halved me-1"></i> Very Strong
+                                    </span>
+                                }
+                                else if (item.PasswordStrength == "Strong")
+                                {
+                                    <span class="badge-strength strong">
+                                        <i class="fa-solid fa-shield-check me-1"></i> Strong
+                                    </span>
+                                }
+                                else if (item.PasswordStrength == "Medium")
+                                {
+                                    <span class="badge-strength medium">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Medium
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge-strength weak">
+                                        <i class="fa-solid fa-circle-exclamation me-1"></i> Weak
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <span class="fw-bold text-theme-primary fs-6">@item.StrengthScore</span><span class="text-theme-secondary opacity-75 small">/100</span>
+                            </td>
+                            <td>
+                                <span class="badge-age"><i class="fa-regular fa-calendar text-info me-1"></i> @item.CreatedAt.ToString("MMM dd, yyyy")</span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <a asp-controller="Vault" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-cyber-outline py-1 px-2" title="Details">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                    <a asp-controller="Vault" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-cyber-outline py-1 px-2" title="Edit">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fa-solid fa-vault text-muted fs-1 mb-3"></i>
+            <h5 class="text-theme-primary">Your Vault is Empty</h5>
+            <p class="text-secondary small">Begin securing your digital accounts by storing your first encrypted password.</p>
+            <a asp-controller="Vault" asp-action="Create" class="btn-cyber-primary mt-2">
+                <i class="fa-solid fa-plus"></i> Add First Password
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Doughnut Chart
+            const ctxDoughnut = document.getElementById('strengthDoughnutChart')?.getContext('2d');
+            if (ctxDoughnut) {
+                new Chart(ctxDoughnut, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Very Strong', 'Strong', 'Medium', 'Weak'],
+                        datasets: [{
+                            data: [@Model.VeryStrongPasswords, @Model.StrongPasswords, @Model.MediumPasswords, @Model.WeakPasswords],
+                            backgroundColor: ['#10B981', '#22C55E', '#F59E0B', '#EF4444'],
+                            borderWidth: 0,
+                            hoverOffset: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#94A3B8', boxWidth: 12, padding: 16 }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
+
+            // Weekly Bar Chart
+            const ctxBar = document.getElementById('activityBarChart')?.getContext('2d');
+            if (ctxBar) {
+                const days = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.WeeklyActivity.Select(w => w.Day)));
+                const counts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.WeeklyActivity.Select(w => w.Count)));
+
+                new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: days,
+                        datasets: [{
+                            label: 'Passwords Added',
+                            data: counts,
+                            backgroundColor: 'rgba(109, 93, 246, 0.65)',
+                            borderColor: '#6D5DF6',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: '#94A3B8' } },
+                            y: { grid: { color: 'rgba(109, 93, 246, 0.08)' }, ticks: { color: '#94A3B8', stepSize: 1 } }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}
+

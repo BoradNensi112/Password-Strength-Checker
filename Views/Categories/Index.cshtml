@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Password Categories";
+    var categoryStats = ViewBag.CategoryStats as IEnumerable<dynamic>;
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fa-solid fa-layer-group"></i> Account Categories</h1>
+        <p class="page-subtitle">Organize and explore your encrypted vault by account type</p>
+    </div>
+    <div>
+        <a asp-controller="Vault" asp-action="Create" class="btn-cyber-primary">
+            <i class="fa-solid fa-plus"></i> Add to Category
+        </a>
+    </div>
+</div>
+
+<div class="categories-grid">
+    @if (categoryStats != null)
+    {
+        @foreach (var cat in categoryStats)
+        {
+            <a asp-controller="Vault" asp-action="Index" asp-route-category="@cat.Name" class="category-card">
+                <div class="category-icon-wrapper" style="background: @(cat.Color)22; color: @cat.Color; border: 1px solid @(cat.Color)44;">
+                    <i class="fa-solid @cat.Icon"></i>
+                </div>
+                <div class="category-name">@cat.Name</div>
+                <div class="category-desc">@cat.Description</div>
+                <div class="category-footer">
+                    <span class="fw-bold text-theme-primary">@cat.Count Saved</span>
+                    <span>Avg Score: <strong class="text-success">@cat.AvgScore</strong>/100</span>
+                </div>
+            </a>
+        }
+    }
+</div>
+

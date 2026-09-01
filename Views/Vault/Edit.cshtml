@@ -1,0 +1,164 @@
+﻿@model SecurePass.Models.ViewModels.PasswordVaultCreateEditModel
+@{
+    ViewData["Title"] = "Edit Password - " + Model.Title;
+    var categories = ViewBag.Categories as List<string> ?? new List<string>();
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fa-solid fa-pen-to-square"></i> Edit Vault Entry</h1>
+        <p class="page-subtitle">Modify stored password and re-encrypt with current cipher</p>
+    </div>
+    <div>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn-cyber-outline">
+            <i class="fa-solid fa-arrow-left"></i> View Details
+        </a>
+    </div>
+</div>
+
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="StrengthScore" id="hiddenStrengthScore" />
+    <input type="hidden" asp-for="PasswordStrength" id="hiddenPasswordStrength" />
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="cyber-card">
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                <div id="duplicateWarningBox" class="cyber-alert cyber-alert-warning mb-3" style="display: none;"></div>
+
+                <div class="cyber-form-group">
+                    <label asp-for="Title" class="cyber-label">Password Title <span class="text-danger">*</span></label>
+                    <input asp-for="Title" class="cyber-input" required />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6 cyber-form-group">
+                        <label asp-for="Website" class="cyber-label">Website URL</label>
+                        <input asp-for="Website" class="cyber-input" />
+                        <span asp-validation-for="Website" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 cyber-form-group">
+                        <label asp-for="Username" class="cyber-label">Username or Email</label>
+                        <input asp-for="Username" class="cyber-input" />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6 cyber-form-group">
+                        <label asp-for="Password" class="cyber-label">Password <span class="text-danger">*</span></label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input asp-for="Password" type="password" id="vaultPasswordInput" class="cyber-input" required />
+                            <button type="button" class="input-action-btn" onclick="togglePasswordVisibility('vaultPasswordInput', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 cyber-form-group">
+                        <label asp-for="ConfirmPassword" class="cyber-label">Confirm Password</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-shield-check input-icon"></i>
+                            <input asp-for="ConfirmPassword" type="password" class="cyber-input" />
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6 cyber-form-group">
+                        <label asp-for="Category" class="cyber-label">Category</label>
+                        <select asp-for="Category" class="cyber-select">
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat">@cat</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 cyber-form-group d-flex align-items-center pt-4">
+                        <label class="d-flex align-items-center gap-2 text-secondary" style="cursor: pointer;">
+                            <input asp-for="IsFavorite" type="checkbox" class="form-check-input bg-dark border-secondary m-0" />
+                            <span><i class="fa-solid fa-star text-warning me-1"></i> Favorite Account</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="cyber-form-group">
+                    <label asp-for="Notes" class="cyber-label">Encrypted Notes</label>
+                    <textarea asp-for="Notes" class="cyber-textarea" rows="3"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-3 pt-2">
+                    <button type="submit" class="btn-cyber-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> Update & Re-Encrypt
+                    </button>
+                    <a asp-action="Index" class="btn-cyber-outline">Cancel</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="cyber-card">
+                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-chart-pie me-2 text-primary"></i> Strength Score</h5>
+                
+                <div class="circular-gauge-wrapper my-3">
+                    <svg class="circular-gauge-svg" viewBox="0 0 100 100">
+                        <circle class="circular-gauge-bg" cx="50" cy="50" r="45"></circle>
+                        <circle class="circular-gauge-meter" id="gaugeMeter" cx="50" cy="50" r="45"></circle>
+                    </svg>
+                    <div class="circular-gauge-content">
+                        <div class="circular-gauge-number" id="gaugeNumber">@Model.StrengthScore</div>
+                        <div class="circular-gauge-unit" id="gaugeLevel">@Model.PasswordStrength</div>
+                    </div>
+                </div>
+
+                <div class="suggestion-card">
+                    <div class="suggestion-title">
+                        <i class="fa-solid fa-lightbulb"></i> Dynamic Suggestions
+                    </div>
+                    <ul class="suggestion-list" id="suggestionsList"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            bindPasswordStrengthChecker({
+                inputSelector: '#vaultPasswordInput',
+                gaugeMeterSelector: '#gaugeMeter',
+                scoreTextSelector: '#gaugeNumber',
+                strengthTextSelector: '#gaugeLevel',
+                hiddenScoreSelector: '#hiddenStrengthScore',
+                hiddenStrengthSelector: '#hiddenPasswordStrength',
+                suggestionsListSelector: '#suggestionsList'
+            });
+
+            SecurePassVault.bindDuplicateChecker('#vaultPasswordInput', '#duplicateWarningBox', @Model.Id);
+        });
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+    </script>
+}
+

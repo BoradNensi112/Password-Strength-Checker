@@ -1,0 +1,104 @@
+﻿@model SecurePass.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Cyber Shield Login";
+    Layout = "_AuthLayout";
+}
+
+<div class="auth-card-container">
+    <!-- Left Hero Pane -->
+    <div class="auth-hero-pane">
+        <div>
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="brand-icon" style="width: 44px; height: 44px; font-size: 1.5rem;">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h3 class="brand-text m-0">SecurePass</h3>
+                    <small class="text-muted">Zero-Knowledge Encrypted Vault</small>
+                </div>
+            </div>
+            <h2 class="text-theme-primary fw-bold mb-3">Enterprise Password Security & Defense</h2>
+            <p class="text-secondary" style="font-size: 0.95rem; line-height: 1.6;">
+                Protect your digital identities with military-grade AES-256 encryption, real-time entropy analysis, and proactive credential leakage prevention.
+            </p>
+        </div>
+
+        <div class="mt-4">
+            <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: rgba(109, 93, 246, 0.1); border: 1px solid rgba(109, 93, 246, 0.25);">
+                <i class="fa-solid fa-lock-open text-primary fs-4"></i>
+                <div>
+                    <div class="fw-semibold text-theme-primary small">Demo Credentials Preloaded</div>
+                    <div class="text-muted small">demo@securepass.io / Secure@Pass2026!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Login Form -->
+    <div class="auth-form-pane">
+        <div class="mb-4">
+            <h3 class="text-theme-primary fw-bold">Welcome Back</h3>
+            <p class="text-secondary small">Authenticate to unlock your encrypted password vault.</p>
+        </div>
+
+        <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+            <div class="cyber-form-group">
+                <label asp-for="Email" class="cyber-label">Email Address</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-envelope input-icon"></i>
+                    <input asp-for="Email" class="cyber-input" placeholder="admin@enterprise.com" autofocus />
+                </div>
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="cyber-form-group">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label asp-for="Password" class="cyber-label mb-0">Master Password</label>
+                    <a asp-action="ForgotPassword" class="text-decoration-none small text-primary">Forgot Password?</a>
+                </div>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-key input-icon"></i>
+                    <input asp-for="Password" type="password" id="loginPasswordInput" class="cyber-input" placeholder="••••••••••••" />
+                    <button type="button" class="input-action-btn" onclick="togglePasswordVisibility('loginPasswordInput', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <label class="d-flex align-items-center gap-2 text-secondary small" style="cursor: pointer;">
+                    <input asp-for="RememberMe" type="checkbox" class="form-check-input bg-dark border-secondary m-0" />
+                    <span>Remember this device</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-cyber-primary w-100 justify-content-center py-2 mb-3">
+                <i class="fa-solid fa-fingerprint"></i> Unlock Secure Vault
+            </button>
+
+            <div class="text-center">
+                <span class="text-muted small">Don't have an account?</span>
+                <a asp-action="Register" class="text-decoration-none fw-semibold text-primary ms-1 small">Create Vault Account</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function togglePasswordVisibility(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'fa-solid fa-eye-slash';
+        } else {
+            input.type = 'password';
+            icon.className = 'fa-solid fa-eye';
+        }
+    }
+</script>
+

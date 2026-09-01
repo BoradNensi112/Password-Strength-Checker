@@ -1,0 +1,173 @@
+﻿@{
+    ViewData["Title"] = "Real-Time Password Strength Checker";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fa-solid fa-shield-virus"></i> Real-Time Password Strength Checker</h1>
+        <p class="page-subtitle">Test any password against NIST, OWASP, entropy metrics and breach patterns</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Main Interactive Tester Pane -->
+    <div class="col-lg-7">
+        <div class="cyber-card mb-4">
+            <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-keyboard me-2 text-primary"></i> Test Password</h5>
+
+            <div class="cyber-form-group">
+                <label class="cyber-label">Enter Password to Analyze</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-key input-icon"></i>
+                    <input type="password" id="checkerPasswordInput" class="cyber-input py-3 fs-5" placeholder="Type password here..." autofocus />
+                    <button type="button" class="input-action-btn fs-5" onclick="togglePasswordVisibility('checkerPasswordInput', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="cyber-form-group">
+                <label class="cyber-label">Personal Info to Check (Name, username, email - Optional)</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-user-tag input-icon"></i>
+                    <input type="text" id="checkerPersonalInfoInput" class="cyber-input" placeholder="e.g. John Doe john@gmail.com" />
+                </div>
+            </div>
+
+            <!-- Animated Linear Bar -->
+            <div class="strength-meter-container my-4">
+                <div class="strength-bar-track" style="height: 12px;">
+                    <div class="strength-bar-fill" id="checkerStrengthBar"></div>
+                </div>
+                <div class="strength-meta mt-2">
+                    <span class="strength-text fs-6" id="checkerStrengthText">Empty</span>
+                    <span class="strength-score-label fs-6" id="checkerScoreText">0/100</span>
+                </div>
+            </div>
+
+            <!-- Suggestion Engine Output -->
+            <div class="suggestion-card">
+                <div class="suggestion-title">
+                    <i class="fa-solid fa-lightbulb"></i> Dynamic Security Recommendations
+                </div>
+                <ul class="suggestion-list" id="checkerSuggestionsList">
+                    <li><i class="fa-solid fa-info-circle text-info"></i> <span>Type a password above to begin cryptographic analysis.</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Cryptographic Stats Pane -->
+    <div class="col-lg-5">
+        <div class="cyber-card mb-4">
+            <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-microchip me-2 text-info"></i> Cryptographic Metrics</h5>
+
+            <!-- Gauge -->
+            <div class="circular-gauge-wrapper my-2">
+                <svg class="circular-gauge-svg" viewBox="0 0 100 100">
+                    <circle class="circular-gauge-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="circular-gauge-meter" id="checkerGaugeMeter" cx="50" cy="50" r="45"></circle>
+                </svg>
+                <div class="circular-gauge-content">
+                    <div class="circular-gauge-number" id="checkerGaugeNumber">0</div>
+                    <div class="circular-gauge-unit" id="checkerGaugeLevel">Score</div>
+                </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="row g-2 text-center my-3">
+                <div class="col-6">
+                    <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                        <div class="text-muted small mb-1">Time to Crack</div>
+                        <div class="fw-bold text-theme-primary small" id="checkerCrackTime">Instant</div>
+                        <small class="text-muted" style="font-size: 0.7rem;">At 10B guesses/sec</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                        <div class="text-muted small mb-1">Shannon Entropy</div>
+                        <div class="fw-bold text-cyan small" id="checkerEntropy">0 bits</div>
+                        <small class="text-muted" style="font-size: 0.7rem;">Theoretical strength</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complete Rules Checklist -->
+            <h6 class="text-theme-primary fw-bold mb-2 mt-4"><i class="fa-solid fa-list-check me-2 text-primary"></i> Rule Verification Matrix</h6>
+            <ul class="rule-checklist">
+                <li class="rule-item" id="rule-min-length">
+                    <div class="rule-icon"><i class="fa-solid fa-xmark"></i></div>
+                    <span>Minimum Length (8+ chars)</span>
+                </li>
+                <li class="rule-item" id="rule-upper">
+                    <div class="rule-icon"><i class="fa-solid fa-xmark"></i></div>
+                    <span>Uppercase Letters (A–Z)</span>
+                </li>
+                <li class="rule-item" id="rule-lower">
+                    <div class="rule-icon"><i class="fa-solid fa-xmark"></i></div>
+                    <span>Lowercase Letters (a–z)</span>
+                </li>
+                <li class="rule-item" id="rule-numbers">
+                    <div class="rule-icon"><i class="fa-solid fa-xmark"></i></div>
+                    <span>Numeric Digits (0–9)</span>
+                </li>
+                <li class="rule-item" id="rule-symbols">
+                    <div class="rule-icon"><i class="fa-solid fa-xmark"></i></div>
+                    <span>Special Characters (!@@#$%^&*)</span>
+                </li>
+                <li class="rule-item" id="rule-no-repeats">
+                    <div class="rule-icon"><i class="fa-solid fa-check"></i></div>
+                    <span>No Consecutive Repeated Characters</span>
+                </li>
+                <li class="rule-item" id="rule-no-seq">
+                    <div class="rule-icon"><i class="fa-solid fa-check"></i></div>
+                    <span>No Sequential Sequences / Keyboard Walks</span>
+                </li>
+                <li class="rule-item" id="rule-not-common">
+                    <div class="rule-icon"><i class="fa-solid fa-check"></i></div>
+                    <span>Not in Common Breached Dictionaries</span>
+                </li>
+                <li class="rule-item" id="rule-no-personal">
+                    <div class="rule-icon"><i class="fa-solid fa-check"></i></div>
+                    <span>Free of Personal Identity Data</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            bindPasswordStrengthChecker({
+                inputSelector: '#checkerPasswordInput',
+                barSelector: '#checkerStrengthBar',
+                gaugeMeterSelector: '#checkerGaugeMeter',
+                scoreTextSelector: '#checkerScoreText',
+                strengthTextSelector: '#checkerStrengthText',
+                crackTimeSelector: '#checkerCrackTime',
+                entropySelector: '#checkerEntropy',
+                personalInfoSelector: '#checkerPersonalInfoInput',
+                suggestionsListSelector: '#checkerSuggestionsList'
+            });
+
+            document.getElementById('checkerPersonalInfoInput')?.addEventListener('input', () => {
+                document.getElementById('checkerPasswordInput')?.dispatchEvent(new Event('input'));
+            });
+        });
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+    </script>
+}
+
+

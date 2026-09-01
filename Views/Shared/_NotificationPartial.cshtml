@@ -1,0 +1,35 @@
+﻿@if (TempData["SuccessMessage"] != null)
+{
+    <div class="cyber-alert cyber-alert-success alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-check text-success fs-5"></i>
+        <div class="flex-grow-1">@TempData["SuccessMessage"]</div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="cyber-alert cyber-alert-warning alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-triangle-exclamation text-warning fs-5"></i>
+        <div class="flex-grow-1">@TempData["WarningMessage"]</div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="cyber-alert cyber-alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-xmark text-danger fs-5"></i>
+        <div class="flex-grow-1">@TempData["ErrorMessage"]</div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["InfoMessage"] != null)
+{
+    <div class="cyber-alert cyber-alert-info alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-info text-info fs-5"></i>
+        <div class="flex-grow-1">@TempData["InfoMessage"]</div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}

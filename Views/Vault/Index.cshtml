@@ -1,0 +1,256 @@
+@model SecurePass.Models.ViewModels.VaultIndexViewModel
+@{
+    ViewData["Title"] = "Password Vault";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fa-solid fa-vault"></i> Password Vault</h1>
+        <p class="page-subtitle">Zero-knowledge encrypted storage for all your digital accounts</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="ImportExport" asp-action="Index" class="btn-cyber-outline">
+            <i class="fa-solid fa-file-import"></i> Import / Export
+        </a>
+        <a asp-action="Create" class="btn-cyber-primary">
+            <i class="fa-solid fa-plus"></i> Add Password
+        </a>
+    </div>
+</div>
+
+<!-- Search & Filter Controls Card -->
+<div class="cyber-card mb-4">
+    <form method="get" asp-action="Index" id="filterForm">
+        <div class="row g-3 align-items-center">
+            <div class="col-lg-4 col-md-6">
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-magnifying-glass input-icon"></i>
+                    <input type="text" name="search" class="cyber-input" placeholder="Search by title, website, username..." value="@Model.SearchQuery" />
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-3 col-6">
+                <select name="category" class="cyber-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="All">All Categories</option>
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <option value="@cat" selected="@(Model.CategoryFilter == cat)">@cat</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-2 col-md-3 col-6">
+                <select name="strength" class="cyber-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="All">All Strengths</option>
+                    <option value="Very Strong" selected="@(Model.StrengthFilter == "Very Strong")">Very Strong</option>
+                    <option value="Strong" selected="@(Model.StrengthFilter == "Strong")">Strong</option>
+                    <option value="Medium" selected="@(Model.StrengthFilter == "Medium")">Medium</option>
+                    <option value="Weak" selected="@(Model.StrengthFilter == "Weak")">Weak</option>
+                </select>
+            </div>
+
+            <div class="col-lg-2 col-md-6 col-6">
+                <select name="sortBy" class="cyber-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="latest" selected="@(Model.SortBy == "latest")">Latest Added</option>
+                    <option value="oldest" selected="@(Model.SortBy == "oldest")">Oldest Added</option>
+                    <option value="title" selected="@(Model.SortBy == "title")">Title (A–Z)</option>
+                    <option value="score_desc" selected="@(Model.SortBy == "score_desc")">Highest Score</option>
+                    <option value="score_asc" selected="@(Model.SortBy == "score_asc")">Lowest Score</option>
+                </select>
+            </div>
+
+            <div class="col-lg-2 col-md-6 col-6 d-flex gap-2">
+                <button type="submit" class="btn-cyber-primary flex-grow-1 justify-content-center">
+                    <i class="fa-solid fa-filter"></i> Filter
+                </button>
+                <a asp-action="Index" class="btn-cyber-outline" title="Reset Filters">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Vault Table -->
+<div class="cyber-card p-0 overflow-hidden">
+    @if (Model.Items.Any())
+    {
+        <div class="cyber-table-wrapper border-0">
+            <table class="cyber-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;"></th>
+                        <th>Account Title</th>
+                        <th>Website / Service</th>
+                        <th>Username / Email</th>
+                        <th>Password</th>
+                        <th>Strength</th>
+                        <th>Score</th>
+                        <th>Age / Expiry</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" onclick="toggleFav(@item.Id, this)">
+                                    <i class="@(item.IsFavorite ? "fa-solid fa-star text-warning" : "fa-regular fa-star text-muted")"></i>
+                                </button>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-theme-primary">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-theme-primary hover-glow">
+                                        @item.Title
+                                    </a>
+                                </div>
+                                <span class="badge-category mt-1">@item.Category</span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.Website))
+                                {
+                                    <a href="@item.Website" target="_blank" class="cell-website-link small d-inline-flex align-items-center gap-1">
+                                        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i> @item.Website
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-theme-muted small">—</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="cell-username-text small">@(item.Username ?? "—")</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="cell-masked-dots" id="pass-text-@item.Id">••••••••••••</span>
+                                    <button type="button" class="btn btn-sm btn-link text-primary p-0" title="Reveal Password" onclick="revealPass(@item.Id, this)">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-link text-info p-0" title="Copy to Clipboard" onclick="copyPass(@item.Id)">
+                                        <i class="fa-solid fa-copy"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                @if (item.PasswordStrength == "Very Strong")
+                                {
+                                    <span class="badge-strength very-strong">
+                                        <i class="fa-solid fa-shield-halved me-1"></i> Very Strong
+                                    </span>
+                                }
+                                else if (item.PasswordStrength == "Strong")
+                                {
+                                    <span class="badge-strength strong">
+                                        <i class="fa-solid fa-shield-check me-1"></i> Strong
+                                    </span>
+                                }
+                                else if (item.PasswordStrength == "Medium")
+                                {
+                                    <span class="badge-strength medium">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Medium
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge-strength weak">
+                                        <i class="fa-solid fa-circle-exclamation me-1"></i> Weak
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <span class="fw-bold text-theme-primary fs-6">@item.StrengthScore</span><span class="text-theme-secondary opacity-75 small">/100</span>
+                            </td>
+                            <td>
+                                @if (item.IsExpired)
+                                {
+                                    <span class="badge bg-danger text-theme-primary small" title="Password is older than 90 days. Upgrade recommended.">
+                                        <i class="fa-solid fa-clock-rotate-left me-1"></i> @item.AgeInDays d (Expired)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge-age"><i class="fa-regular fa-clock text-info me-1"></i> @(item.AgeInDays == 0 ? "Today" : item.AgeInDays + "d ago")</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-cyber-outline py-1 px-2" title="Details">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-cyber-outline py-1 px-2" title="Edit">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" id="del-form-@item.Id" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="button" class="btn btn-sm btn-cyber-danger py-1 px-2" title="Delete" onclick="SecurePassVault.confirmDelete('del-form-@item.Id', '@item.Title')">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="d-flex justify-content-between align-items-center p-3 border-top border-secondary opacity-75">
+                <div class="text-muted small">
+                    Showing @(((Model.CurrentPage - 1) * Model.PageSize) + 1) to @(Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalItems)) of @Model.TotalItems entries
+                </div>
+                <div class="d-flex gap-1">
+                    @for (int p = 1; p <= Model.TotalPages; p++)
+                    {
+                        <a asp-action="Index" 
+                           asp-route-page="@p" 
+                           asp-route-search="@Model.SearchQuery" 
+                           asp-route-category="@Model.CategoryFilter" 
+                           asp-route-strength="@Model.StrengthFilter" 
+                           asp-route-sortBy="@Model.SortBy" 
+                           class="btn btn-sm @(p == Model.CurrentPage ? "btn-cyber-primary" : "btn-cyber-outline") px-3">
+                            @p
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fa-solid fa-vault text-muted fs-1 mb-3"></i>
+            <h5 class="text-theme-primary">No Passwords Found</h5>
+            <p class="text-secondary small">No stored passwords matched your current filter criteria.</p>
+            <a asp-action="Create" class="btn-cyber-primary mt-2">
+                <i class="fa-solid fa-plus"></i> Add New Password
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        const antiForgeryToken = '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)?.[1] || '';
+
+        function revealPass(id, btn) {
+            const target = document.getElementById('pass-text-' + id);
+            SecurePassVault.revealPassword(id, btn, target, antiForgeryToken);
+        }
+
+        function copyPass(id) {
+            const target = document.getElementById('pass-text-' + id);
+            SecurePassVault.copyToClipboard(target.innerText, 'Password');
+        }
+
+        function toggleFav(id, btn) {
+            const icon = btn.querySelector('i');
+            SecurePassVault.toggleFavorite(id, icon, antiForgeryToken);
+        }
+    </script>
+}
+

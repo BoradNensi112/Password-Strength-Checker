@@ -1,0 +1,183 @@
+﻿@model SecurePass.Models.ViewModels.SettingsViewModel
+@{
+    ViewData["Title"] = "Security & Preferences";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fa-solid fa-sliders text-primary"></i> Settings & Preferences</h1>
+        <p class="page-subtitle">Configure interface themes, cryptographic defaults, and inactivity auto-lock timers</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <form asp-action="Index" method="post" id="settingsForm">
+            @Html.AntiForgeryToken()
+
+            <!-- Interface Theme -->
+            <div class="cyber-card mb-4">
+                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-palette me-2 text-primary"></i> UI Theme & Appearance</h5>
+                <p class="text-muted small mb-3">Select your preferred color scheme. The interface switches immediately.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="d-flex align-items-center gap-3 p-3 rounded-3 theme-card-option" id="themeDarkCard" style="background: rgba(8, 14, 30, 0.6); border: 2px solid @(Model.ThemeMode == "dark" ? "var(--accent-purple)" : "var(--border-color)"); cursor: pointer;">
+                            <input type="radio" asp-for="ThemeMode" value="dark" class="form-check-input bg-dark border-secondary m-0" onchange="previewTheme('dark')" />
+                            <div>
+                                <div class="text-theme-primary fw-semibold"><i class="fa-solid fa-moon text-primary me-2"></i> Cyber Dark Mode</div>
+                                <div class="text-muted small">Futuristic dark navy & neon glow</div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="d-flex align-items-center gap-3 p-3 rounded-3 theme-card-option" id="themeLightCard" style="background: rgba(8, 14, 30, 0.6); border: 2px solid @(Model.ThemeMode == "light" ? "var(--accent-purple)" : "var(--border-color)"); cursor: pointer;">
+                            <input type="radio" asp-for="ThemeMode" value="light" class="form-check-input bg-dark border-secondary m-0" onchange="previewTheme('light')" />
+                            <div>
+                                <div class="text-theme-primary fw-semibold"><i class="fa-solid fa-sun text-warning me-2"></i> Light Mode</div>
+                                <div class="text-muted small">Clean daylight interface</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Session & Security -->
+            <div class="cyber-card mb-4">
+                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-clock me-2 text-warning"></i> Session Security & Inactivity Auto-Lock</h5>
+                <div class="cyber-form-group mb-0">
+                    <label class="cyber-label">Vault Auto-Lock Inactivity Timeout</label>
+                    <select asp-for="AutoLockMinutes" id="autoLockSelect" class="cyber-select">
+                        <option value="5">5 Minutes (Maximum Security)</option>
+                        <option value="15">15 Minutes (Recommended)</option>
+                        <option value="30">30 Minutes</option>
+                        <option value="60">1 Hour</option>
+                        <option value="0">Never (Stay Unlocked during browser session)</option>
+                    </select>
+                    <small class="text-muted d-block mt-2" style="font-size: 0.75rem;">
+                        <i class="fa-solid fa-shield-halved text-info me-1"></i> When enabled, SecurePass automatically locks your vault if no mouse or keyboard activity is detected.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Generator Defaults -->
+            <div class="cyber-card mb-4">
+                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-wand-magic-sparkles me-2 text-success"></i> Password Generator Presets</h5>
+                <p class="text-muted small mb-3">These options will automatically be used whenever you generate new passwords.</p>
+
+                <div class="cyber-form-group">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="cyber-label mb-0">Default Password Length: <span class="text-primary fw-bold fs-6" id="settingsLengthDisplay">@Model.DefaultGeneratorLength</span> chars</label>
+                        <span class="text-muted small">8 – 32</span>
+                    </div>
+                    <input type="range" class="form-range" id="settingsLengthSlider" min="8" max="32" value="@Model.DefaultGeneratorLength" oninput="updateLength(this.value)" />
+                    <input type="hidden" asp-for="DefaultGeneratorLength" id="hiddenLengthInput" />
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                            <div>
+                                <div class="text-theme-primary fw-semibold">Include Uppercase (A–Z)</div>
+                                <div class="text-muted small">A, B, C, D, E...</div>
+                            </div>
+                            <label class="cyber-switch">
+                                <input type="checkbox" asp-for="IncludeUppercase" />
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                            <div>
+                                <div class="text-theme-primary fw-semibold">Include Lowercase (a–z)</div>
+                                <div class="text-muted small">a, b, c, d, e...</div>
+                            </div>
+                            <label class="cyber-switch">
+                                <input type="checkbox" asp-for="IncludeLowercase" />
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                            <div>
+                                <div class="text-theme-primary fw-semibold">Include Numbers (0–9)</div>
+                                <div class="text-muted small">0, 1, 2, 3, 4...</div>
+                            </div>
+                            <label class="cyber-switch">
+                                <input type="checkbox" asp-for="IncludeNumbers" />
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                            <div>
+                                <div class="text-theme-primary fw-semibold">Include Symbols (!@@#$)</div>
+                                <div class="text-muted small">! @@ # $ % ^ & *</div>
+                            </div>
+                            <label class="cyber-switch">
+                                <input type="checkbox" asp-for="IncludeSymbols" />
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                            <div>
+                                <div class="text-theme-primary fw-semibold">Avoid Ambiguous Characters</div>
+                                <div class="text-muted small">Excludes easily confused characters (0, O, o, 1, l, I, |)</div>
+                            </div>
+                            <label class="cyber-switch">
+                                <input type="checkbox" asp-for="AvoidSimilarChars" />
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-cyber-primary w-100 justify-content-center py-3 fs-6">
+                <i class="fa-solid fa-floppy-disk me-2"></i> Save All Preferences
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateLength(val) {
+            document.getElementById('settingsLengthDisplay').innerText = val;
+            document.getElementById('hiddenLengthInput').value = val;
+        }
+
+        function previewTheme(mode) {
+            document.documentElement.setAttribute('data-theme', mode);
+            localStorage.setItem('securepass_theme', mode);
+
+            const darkCard = document.getElementById('themeDarkCard');
+            const lightCard = document.getElementById('themeLightCard');
+            if (darkCard && lightCard) {
+                darkCard.style.borderColor = mode === 'dark' ? 'var(--accent-purple)' : 'var(--border-color)';
+                lightCard.style.borderColor = mode === 'light' ? 'var(--accent-purple)' : 'var(--border-color)';
+            }
+
+            const icon = document.querySelector('#themeToggleBtn i');
+            if (icon) {
+                icon.className = mode === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+        }
+
+        document.getElementById('settingsForm')?.addEventListener('submit', function() {
+            const selectedTheme = document.querySelector('input[name="ThemeMode"]:checked')?.value || 'dark';
+            const autoLockVal = document.getElementById('autoLockSelect')?.value || '15';
+            localStorage.setItem('securepass_theme', selectedTheme);
+            localStorage.setItem('securepass_autolock', autoLockVal);
+        });
+    </script>
+}
+

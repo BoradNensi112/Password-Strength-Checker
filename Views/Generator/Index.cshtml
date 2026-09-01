@@ -1,0 +1,206 @@
+﻿@{
+    ViewData["Title"] = "Automatic Password Generator";
+    var initialResult = ViewBag.InitialResult as SecurePass.Models.ViewModels.GeneratedPasswordResult;
+    var initialOptions = ViewBag.InitialOptions as SecurePass.Models.ViewModels.GeneratorOptions ?? new SecurePass.Models.ViewModels.GeneratorOptions
+    {
+        Length = 16,
+        IncludeUppercase = true,
+        IncludeLowercase = true,
+        IncludeNumbers = true,
+        IncludeSymbols = true,
+        AvoidSimilarChars = true
+    };
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fa-solid fa-wand-magic-sparkles text-primary"></i> Cryptographic Password Generator</h1>
+        <p class="page-subtitle">Generate high-entropy, cryptographically randomized uncrackable passwords</p>
+    </div>
+</div>
+
+<div class="row g-4 justify-content-center">
+    <div class="col-lg-8">
+        <!-- Output Card -->
+        <div class="cyber-card mb-4 text-center p-4">
+            <div class="p-4 rounded-3 position-relative mb-3" style="background: rgba(8, 14, 30, 0.95); border: 1px solid var(--accent-purple-glow); box-shadow: 0 0 25px rgba(99, 102, 241, 0.2);">
+                <div class="fs-2 fw-bold font-monospace text-success text-break user-select-all py-2" id="genResultPass" style="letter-spacing: 2px;">
+                    @(initialResult?.Password ?? "Generating...")
+                </div>
+                <div class="d-flex justify-content-center gap-3 mt-2 flex-wrap">
+                    <span class="badge-strength very-strong" id="genStrengthBadge">
+                        Score: @(initialResult?.Score ?? 98)/100
+                    </span>
+                    <span class="badge-strength" style="background: rgba(6, 182, 212, 0.15); color: #06B6D4; border: 1px solid rgba(6, 182, 212, 0.3);" id="genCrackTimeBadge">
+                        <i class="fa-solid fa-shield-halved me-1"></i> Crack Time: @(initialResult?.CrackTimeFormatted ?? "Centuries")
+                    </span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <button type="button" class="btn-cyber-primary px-4 py-2" id="btnGenAgain" onclick="refreshGenerator()">
+                    <i class="fa-solid fa-arrows-rotate" id="refreshIcon"></i> Generate Again
+                </button>
+                <button type="button" class="btn-cyber-success px-4 py-2" onclick="copyGeneratedPass()">
+                    <i class="fa-solid fa-copy"></i> Copy to Clipboard
+                </button>
+                <a href="/Vault/Create?prefill=@(Uri.EscapeDataString(initialResult?.Password ?? ""))" class="btn-cyber-outline px-4 py-2" id="usePassLink">
+                    <i class="fa-solid fa-vault"></i> Save to Vault
+                </a>
+            </div>
+        </div>
+
+        <!-- Customization Controls Card -->
+        <div class="cyber-card">
+            <h5 class="text-theme-primary fw-bold mb-4"><i class="fa-solid fa-sliders me-2 text-primary"></i> Generator Customization Options</h5>
+
+            <!-- Length Slider -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="cyber-label mb-0 fw-semibold">Password Length: <span class="text-primary fs-5 fw-bold" id="sliderLengthVal">@initialOptions.Length</span> characters</label>
+                    <span class="text-muted small">Range: 8 – 32</span>
+                </div>
+                <input type="range" class="form-range" id="genLengthSlider" min="8" max="32" value="@initialOptions.Length" />
+            </div>
+
+            <!-- Toggles Grid -->
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                        <div>
+                            <div class="text-theme-primary fw-semibold">Uppercase Letters</div>
+                            <div class="text-muted small">A, B, C, D, E, F...</div>
+                        </div>
+                        <label class="cyber-switch">
+                            <input type="checkbox" id="genUpper" @(initialOptions.IncludeUppercase ? "checked" : "") />
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                        <div>
+                            <div class="text-theme-primary fw-semibold">Lowercase Letters</div>
+                            <div class="text-muted small">a, b, c, d, e, f...</div>
+                        </div>
+                        <label class="cyber-switch">
+                            <input type="checkbox" id="genLower" @(initialOptions.IncludeLowercase ? "checked" : "") />
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                        <div>
+                            <div class="text-theme-primary fw-semibold">Numeric Digits</div>
+                            <div class="text-muted small">0, 1, 2, 3, 4, 5, 6, 7, 8, 9</div>
+                        </div>
+                        <label class="cyber-switch">
+                            <input type="checkbox" id="genNumbers" @(initialOptions.IncludeNumbers ? "checked" : "") />
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                        <div>
+                            <div class="text-theme-primary fw-semibold">Special Symbols</div>
+                            <div class="text-muted small">! @@ # $ % ^ & * ( ) _ +</div>
+                        </div>
+                        <label class="cyber-switch">
+                            <input type="checkbox" id="genSymbols" @(initialOptions.IncludeSymbols ? "checked" : "") />
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                        <div>
+                            <div class="text-theme-primary fw-semibold">Avoid Ambiguous / Similar Characters</div>
+                            <div class="text-muted small">Omits easily confused characters (0, O, o, 1, l, I, |)</div>
+                        </div>
+                        <label class="cyber-switch">
+                            <input type="checkbox" id="genAvoidSimilar" @(initialOptions.AvoidSimilarChars ? "checked" : "") />
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slider = document.getElementById('genLengthSlider');
+            if (slider) {
+                slider.addEventListener('input', function(e) {
+                    document.getElementById('sliderLengthVal').innerText = e.target.value;
+                    refreshGenerator();
+                });
+            }
+
+            const toggleIds = ['genUpper', 'genLower', 'genNumbers', 'genSymbols', 'genAvoidSimilar'];
+            toggleIds.forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('change', refreshGenerator);
+                }
+            });
+        });
+
+        function refreshGenerator() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            if (refreshIcon) {
+                refreshIcon.classList.add('fa-spin');
+                setTimeout(function() { refreshIcon.classList.remove('fa-spin'); }, 350);
+            }
+
+            const length = parseInt(document.getElementById('genLengthSlider').value) || 16;
+            const upper = document.getElementById('genUpper').checked;
+            const lower = document.getElementById('genLower').checked;
+            const nums = document.getElementById('genNumbers').checked;
+            const syms = document.getElementById('genSymbols').checked;
+            const avoid = document.getElementById('genAvoidSimilar').checked;
+
+            const res = SecurePassGenerator.generate({
+                length: length,
+                includeUppercase: upper,
+                includeLowercase: lower,
+                includeNumbers: nums,
+                includeSymbols: syms,
+                avoidSimilar: avoid
+            });
+
+            document.getElementById('genResultPass').innerText = res.password;
+            
+            const badge = document.getElementById('genStrengthBadge');
+            if (badge) {
+                badge.innerText = 'Score: ' + res.score + '/100';
+                badge.className = 'badge-strength ' + (res.score >= 90 ? 'very-strong' : (res.score >= 70 ? 'strong' : (res.score >= 40 ? 'medium' : 'weak')));
+            }
+
+            const crackBadge = document.getElementById('genCrackTimeBadge');
+            if (crackBadge) {
+                crackBadge.innerHTML = '<i class="fa-solid fa-shield-halved me-1"></i> Crack Time: ' + res.crackTimeFormatted;
+            }
+
+            const useLink = document.getElementById('usePassLink');
+            if (useLink) {
+                useLink.href = '/Vault/Create?prefill=' + encodeURIComponent(res.password);
+            }
+        }
+
+        function copyGeneratedPass() {
+            const pass = document.getElementById('genResultPass').innerText;
+            SecurePassVault.copyToClipboard(pass, 'Generated password');
+        }
+    </script>
+}
+

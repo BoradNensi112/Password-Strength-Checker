@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SecurePass Vault</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- FontAwesome 6 Pro Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- Google Fonts Inter & Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Cyber Stylesheets -->
+    <link rel="stylesheet" href="~/css/cyber-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/strength-meter.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="cyber-grid-bg">
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <div class="brand-text">SecurePass</div>
+                </div>
+                <span class="brand-badge ms-auto">AES-256</span>
+            </div>
+
+            <div class="sidebar-menu">
+                <div class="menu-category-title">Core Vault</div>
+                <a asp-controller="Dashboard" asp-action="Index" class="nav-link-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a asp-controller="Vault" asp-action="Create" class="nav-link-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Vault" && ViewContext.RouteData.Values["Action"]?.ToString() == "Create" ? "active" : "")">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>Add Password</span>
+                </a>
+                <a asp-controller="Vault" asp-action="Index" class="nav-link-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Vault" && ViewContext.RouteData.Values["Action"]?.ToString() != "Create" ? "active" : "")">
+                    <i class="fa-solid fa-vault"></i>
+                    <span>Password Vault</span>
+                </a>
+                <a asp-controller="Favorites" asp-action="Index" class="nav-link-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Favorites" ? "active" : "")">
+                    <i class="fa-solid fa-star text-warning"></i>
+                    <span>Favorites</span>
+                </a>
+                <a asp-controller="Categories" asp-action="Index" class="nav-link-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Categories" ? "active" : "")">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Categories</span>
+                </a>
+
+                <div class="menu-category-title mt-2">Security Tools</div>
+                <a asp-controller="Checker" asp-action="Index" class="nav-link-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Checker" ? "active" : "")">
+                    <i class="fa-solid fa-shield-virus"></i>
+                    <span>Strength Checker</span>
+                </a>
+                <a asp-controller="Generator" asp-action="Index" class="nav-link-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Generator" ? "active" : "")">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Pass Generator</span>
+                </a>
+                <a asp-controller="Health" asp-action="Index" class="nav-link-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Health" ? "active" : "")">
+                    <i class="fa-solid fa-heart-pulse text-danger"></i>
+                    <span>Password Health</span>
+                </a>
+                <a asp-controller="ImportExport" asp-action="Index" class="nav-link-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "ImportExport" ? "active" : "")">
+                    <i class="fa-solid fa-file-import"></i>
+                    <span>Import & Export</span>
+                </a>
+
+                <div class="menu-category-title mt-2">System</div>
+                <a asp-controller="Account" asp-action="Profile" class="nav-link-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Account" && ViewContext.RouteData.Values["Action"]?.ToString() == "Profile" ? "active" : "")">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>User Profile</span>
+                </a>
+                <a asp-controller="Settings" asp-action="Index" class="nav-link-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Settings" ? "active" : "")">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="sidebar-footer">
+                <a asp-controller="Account" asp-action="Profile" class="user-quick-pill">
+                    <div class="user-avatar">
+                        @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
+                    </div>
+                    <div class="overflow-hidden flex-grow-1">
+                        <div class="fw-semibold text-truncate small">@(User.Identity?.Name ?? "Admin")</div>
+                        <div class="text-muted small text-truncate" style="font-size: 0.75rem;">Protected by AES-256</div>
+                    </div>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Sign Out">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </form>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="app-main">
+            <!-- Top Header -->
+            <header class="app-topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle-btn d-lg-none" id="sidebarToggleBtn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <form asp-controller="Vault" asp-action="Index" method="get" class="topbar-search-form d-none d-md-block">
+                        <i class="fa-solid fa-magnifying-glass topbar-search-icon"></i>
+                        <input type="text" name="search" class="topbar-search-input" placeholder="Search passwords, websites..." value="@Context.Request.Query["search"]" />
+                    </form>
+                </div>
+
+                <div class="topbar-right">
+                    <a asp-controller="Vault" asp-action="Create" class="btn-cyber-primary btn-sm d-none d-sm-inline-flex">
+                        <i class="fa-solid fa-plus"></i> New Password
+                    </a>
+
+                    <button class="icon-button" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+                        <i class="fa-solid fa-sun"></i>
+                    </button>
+
+                    <a asp-controller="Health" asp-action="Index" class="icon-button" title="Vault Security Health">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span class="status-dot"></span>
+                    </a>
+
+                    <div class="dropdown">
+                        <button class="btn p-0 border-0" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar" style="cursor: pointer;">
+                                @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
+                            </div>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="background: var(--bg-card); border: 1px solid var(--border-color); backdrop-filter: blur(16px);">
+                            <li><h6 class="dropdown-header text-muted">@User.Identity?.Name</h6></li>
+                            <li><a class="dropdown-item text-theme-primary" asp-controller="Account" asp-action="Profile"><i class="fa-solid fa-user me-2 text-primary"></i> Profile</a></li>
+                            <li><a class="dropdown-item text-theme-primary" asp-controller="Settings" asp-action="Index"><i class="fa-solid fa-sliders me-2 text-info"></i> Preferences</a></li>
+                            <li><hr class="dropdown-divider border-secondary"></li>
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                    <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-right-from-bracket me-2"></i> Log Out</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Container -->
+            <main class="page-container">
+                <partial name="_NotificationPartial" />
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/js/password-analyzer.js" asp-append-version="true"></script>
+    <script src="~/js/password-generator.js" asp-append-version="true"></script>
+    <script src="~/js/vault-actions.js" asp-append-version="true"></script>
+    <script src="~/js/cyber-ui.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
