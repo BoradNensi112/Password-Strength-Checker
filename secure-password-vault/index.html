@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+    <base href="/Password-Strength-Checker/">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SecurePass – Smart Password Strength Checker & Secure Password Vault</title>
@@ -54,11 +55,64 @@
             box-shadow: 0 10px 25px var(--accent-purple-glow);
         }
     </style>
+
+    <style>
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            width: 100%;
+        }
+        .auth-card-container {
+            width: 100%;
+            max-width: 1050px;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .auth-hero-pane {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(7, 11, 25, 0.95));
+            padding: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 1px solid var(--border-color);
+        }
+        [data-theme="light"] .auth-hero-pane {
+            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+        }
+        .auth-form-pane {
+            padding: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: var(--bg-card);
+        }
+        @media (max-width: 768px) {
+            .auth-card-container {
+                grid-template-columns: 1fr;
+                border-radius: 16px;
+            }
+            .auth-hero-pane {
+                padding: 28px 20px;
+            }
+            .auth-form-pane {
+                padding: 28px 20px;
+            }
+        }
+    </style>
+
 </head>
 <body class="cyber-grid-bg">
     
     <!-- Cyber Shield Auth Container (Login / Register) -->
-    <div id="authSection" class="auth-wrapper" style="display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 20px;">
+    <div id="authSection" class="auth-wrapper" style="display: flex;">
         <!-- LOGIN CARD -->
         <div class="auth-card-container" id="loginCard">
             <!-- Left Hero Pane -->
@@ -83,7 +137,7 @@
                     <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: rgba(109, 93, 246, 0.1); border: 1px solid rgba(109, 93, 246, 0.25); cursor: pointer;" onclick="fillDemoCredentials()">
                         <i class="fa-solid fa-lock-open text-primary fs-4"></i>
                         <div>
-                            <div class="fw-semibold text-theme-primary small">Demo Credentials Preloaded (Click to Fill)</div>
+                            <div class="fw-semibold text-theme-primary small">Demo Credentials (Tap to Fill)</div>
                             <div class="text-muted small">demo@securepass.io / Secure@Pass2026!</div>
                         </div>
                     </div>
@@ -111,7 +165,7 @@
                     <div class="cyber-form-group mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <label class="cyber-label mb-0">Master Password</label>
-                            <a href="javascript:void(0)" onclick="fillDemoCredentials()" class="text-decoration-none small text-primary">Use Demo Credentials</a>
+                            <a href="javascript:void(0)" onclick="fillDemoCredentials()" class="text-decoration-none small text-primary">Fill Demo</a>
                         </div>
                         <div class="input-with-icon">
                             <i class="fa-solid fa-key input-icon"></i>
@@ -320,7 +374,7 @@
 
                 <div class="topbar-right">
                     
-                    <button type="button" class="btn-cyber-outline py-2 px-3 small" onclick="lockVault()" title="Lock Vault">
+                    <button type="button" class="btn-cyber-outline py-2 px-3 small me-2" onclick="lockVault()" title="Lock Vault">
                         <i class="fa-solid fa-lock"></i> <span class="d-none d-sm-inline">Lock Vault</span>
                     </button>
 
@@ -1542,7 +1596,20 @@
         }
 
         
-        // --- Authentication & Session Management ---
+        // --- Authentication & Password Helpers ---
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                if (icon) icon.className = 'fa-solid fa-eye';
+            }
+        }
+
         function checkAuthStatus() {
             const isAuth = sessionStorage.getItem('securepass_auth') === 'true';
             const authSection = document.getElementById('authSection');
