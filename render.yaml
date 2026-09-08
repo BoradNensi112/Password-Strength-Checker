@@ -1,7 +1,14 @@
 services:
   - type: web
     name: securepass-vault
-    env: docker
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     plan: free
     branch: main
     healthCheckPath: /Account/Login
+    envVars:
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+      - key: PORT
+        value: 8080
