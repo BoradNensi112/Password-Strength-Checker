@@ -134,12 +134,10 @@
                 </div>
 
                 <div class="mt-4">
-                    <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: rgba(109, 93, 246, 0.1); border: 1px solid rgba(109, 93, 246, 0.25); cursor: pointer;" onclick="fillDemoCredentials()">
-                        <i class="fa-solid fa-lock-open text-primary fs-4"></i>
-                        <div>
-                            <div class="fw-semibold text-theme-primary small">Demo Credentials (Tap to Fill)</div>
-                            <div class="text-muted small">demo@securepass.io / Secure@Pass2026!</div>
-                        </div>
+                    <div class="d-flex flex-column gap-2 text-secondary small">
+                        <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-shield-check text-success"></i> End-to-End Zero-Knowledge Architecture</div>
+                        <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-shield-check text-success"></i> Military-Grade AES-256-GCM Cryptography</div>
+                        <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-shield-check text-success"></i> Live Entropy & Vulnerability Analysis</div>
                     </div>
                 </div>
             </div>
@@ -158,18 +156,17 @@
                         <label class="cyber-label">Email Address</label>
                         <div class="input-with-icon">
                             <i class="fa-solid fa-envelope input-icon"></i>
-                            <input type="email" id="loginEmail" class="cyber-input" value="demo@securepass.io" placeholder="admin@enterprise.com" required autofocus />
+                            <input type="email" id="loginEmail" class="cyber-input" placeholder="user@domain.com" required autofocus />
                         </div>
                     </div>
 
                     <div class="cyber-form-group mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <label class="cyber-label mb-0">Master Password</label>
-                            <a href="javascript:void(0)" onclick="fillDemoCredentials()" class="text-decoration-none small text-primary">Fill Demo</a>
                         </div>
                         <div class="input-with-icon">
                             <i class="fa-solid fa-key input-icon"></i>
-                            <input type="password" id="loginPasswordInput" class="cyber-input" value="Secure@Pass2026!" placeholder="••••••••••••" required />
+                            <input type="password" id="loginPasswordInput" class="cyber-input" placeholder="Enter your master password" required />
                             <button type="button" class="input-action-btn" onclick="togglePasswordVisibility('loginPasswordInput', this)">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
@@ -217,9 +214,9 @@
 
                 <div class="mt-4">
                     <div class="d-flex flex-column gap-2 text-secondary small">
-                        <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i> Client & Server End-to-End Encryption</div>
-                        <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i> Live Entropy & Brute-Force Crack Estimator</div>
-                        <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i> 90-Day Expiry & Credential Reuse Auditing</div>
+                        <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-shield-check text-success"></i> Client & Server End-to-End Encryption</div>
+                        <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-shield-check text-success"></i> Live Entropy & Brute-Force Crack Estimator</div>
+                        <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-shield-check text-success"></i> 90-Day Expiry & Credential Reuse Auditing</div>
                     </div>
                 </div>
             </div>
@@ -247,7 +244,7 @@
                             <label class="cyber-label">Email Address</label>
                             <div class="input-with-icon">
                                 <i class="fa-solid fa-envelope input-icon"></i>
-                                <input type="email" id="regEmail" class="cyber-input" placeholder="nensi@domain.com" required />
+                                <input type="email" id="regEmail" class="cyber-input" placeholder="user@domain.com" required />
                             </div>
                         </div>
                     </div>
@@ -1622,16 +1619,10 @@
                 if (authSection) authSection.style.display = 'none';
                 if (appWrapper) appWrapper.style.display = 'flex';
                 document.title = 'SecurePass – Smart Password Strength Checker & Secure Password Vault';
-                const userEmail = sessionStorage.getItem('securepass_user') || 'demo@securepass.io';
+                const userEmail = sessionStorage.getItem('securepass_user') || 'User';
                 const userPill = document.querySelector('.user-quick-pill .fw-semibold');
-                if (userPill) userPill.textContent = userEmail.split('@')[0];
+                if (userPill) userPill.textContent = userEmail.includes('@') ? userEmail.split('@')[0] : userEmail;
             }
-        }
-
-        function fillDemoCredentials() {
-            document.getElementById('loginEmail').value = 'demo@securepass.io';
-            document.getElementById('loginPasswordInput').value = 'Secure@Pass2026!';
-            showToast('Demo credentials filled!', 'info');
         }
 
         function handleAuthLogin(e) {
@@ -1641,19 +1632,25 @@
             const alertEl = document.getElementById('loginAlert');
 
             const customUsers = JSON.parse(localStorage.getItem('securepass_users') || '{}');
-            const validDemo = (email.toLowerCase() === 'demo@securepass.io' && pass === 'Secure@Pass2026!');
-            const validCustom = (customUsers[email.toLowerCase()] && customUsers[email.toLowerCase()].password === pass);
+            const user = customUsers[email.toLowerCase()];
 
-            if (validDemo || validCustom || pass.length >= 6) {
-                sessionStorage.setItem('securepass_auth', 'true');
-                sessionStorage.setItem('securepass_user', email);
-                alertEl.style.display = 'none';
-                checkAuthStatus();
-                showToast('Vault decrypted & unlocked successfully!', 'success');
-            } else {
-                alertEl.textContent = 'Invalid credentials. Use demo credentials or register.';
+            if (user && user.password !== pass) {
+                alertEl.textContent = 'Incorrect password. Please try again.';
                 alertEl.style.display = 'block';
+                return;
             }
+
+            if (pass.length < 6) {
+                alertEl.textContent = 'Master password must be at least 6 characters.';
+                alertEl.style.display = 'block';
+                return;
+            }
+
+            sessionStorage.setItem('securepass_auth', 'true');
+            sessionStorage.setItem('securepass_user', email || 'Vault User');
+            alertEl.style.display = 'none';
+            checkAuthStatus();
+            showToast('Vault decrypted & unlocked successfully!', 'success');
         }
 
         function lockVault() {
@@ -1685,6 +1682,11 @@
                 alertEl.style.display = 'block';
                 return;
             }
+            if (pass.length < 8) {
+                alertEl.textContent = 'Master password must be at least 8 characters!';
+                alertEl.style.display = 'block';
+                return;
+            }
             const users = JSON.parse(localStorage.getItem('securepass_users') || '{}');
             users[email] = { name: name, password: pass };
             localStorage.setItem('securepass_users', JSON.stringify(users));
@@ -1693,7 +1695,7 @@
             document.getElementById('loginEmail').value = email;
             document.getElementById('loginPasswordInput').value = pass;
             showLoginCard();
-            showToast('Vault initialized! You can now log in.', 'success');
+            showToast('Vault account initialized! Please log in.', 'success');
         }
 
         // On Load Init
