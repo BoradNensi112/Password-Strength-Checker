@@ -1,387 +1,612 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecurePass – Smart Password Strength Checker & Vault</title>
-    <!-- Google Fonts & FontAwesome -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SecurePass – Smart Password Strength Checker & Secure Password Vault</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- FontAwesome 6 Pro Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- Google Fonts Inter & Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Cyber Theme & Strength Meter CSS -->
-    <link rel="stylesheet" href="wwwroot/css/cyber-theme.css">
-    <link rel="stylesheet" href="wwwroot/css/strength-meter.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Cyber Stylesheets -->
+    <link rel="stylesheet" href="wwwroot/css/cyber-theme.css" />
+    <link rel="stylesheet" href="wwwroot/css/strength-meter.css" />
     <style>
-        .nav-pill-cyber {
-            color: var(--text-secondary);
-            border-radius: var(--radius-md);
-            padding: 8px 18px;
-            font-weight: 600;
-            font-size: 0.92rem;
-            cursor: pointer;
-            transition: var(--transition-fast);
-            border: 1px solid transparent;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .nav-pill-cyber:hover {
-            color: var(--text-primary);
-            background: rgba(99, 102, 241, 0.12);
-        }
-        .nav-pill-cyber.active {
-            color: #FFFFFF !important;
-            background: linear-gradient(135deg, var(--accent-purple), #4F46E5);
-            border-color: rgba(99, 102, 241, 0.4);
-            box-shadow: 0 4px 15px var(--accent-purple-glow);
-        }
-        .tab-content-panel {
+        .view-section {
             display: none;
+            animation: fadeIn 0.25s ease-in-out;
         }
-        .tab-content-panel.active {
+        .view-section.active {
             display: block;
-            animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .category-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: var(--transition-normal);
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+        .category-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-purple);
+            box-shadow: 0 10px 25px var(--accent-purple-glow);
+        }
     </style>
 </head>
 <body class="cyber-grid-bg">
-
-    <!-- Top Navigation -->
-    <header class="app-topbar d-flex align-items-center justify-content-between px-3 px-md-5" style="position: sticky; top: 0; z-index: 1000; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color);">
-        <div class="d-flex align-items-center gap-3">
-            <div class="brand-icon">
-                <i class="fa-solid fa-shield-halved"></i>
-            </div>
-            <div>
-                <div class="brand-text">SecurePass</div>
-            </div>
-            <span class="brand-badge d-none d-sm-inline-block">v2.0 Live</span>
-        </div>
-
-        <nav class="d-flex align-items-center gap-2">
-            <a class="nav-pill-cyber active" onclick="switchTab('checker', this)"><i class="fa-solid fa-gauge-high"></i> <span class="d-none d-md-inline">Strength Checker</span></a>
-            <a class="nav-pill-cyber" onclick="switchTab('generator', this)"><i class="fa-solid fa-wand-magic-sparkles"></i> <span class="d-none d-md-inline">Generator</span></a>
-            <a class="nav-pill-cyber" onclick="switchTab('vault', this)"><i class="fa-solid fa-vault"></i> <span class="d-none d-md-inline">Password Vault</span></a>
-            <a class="nav-pill-cyber" onclick="switchTab('health', this)"><i class="fa-solid fa-heart-pulse"></i> <span class="d-none d-md-inline">Health Audit</span></a>
-        </nav>
-
-        <div class="d-flex align-items-center gap-2">
-            <button id="themeToggleBtn" class="icon-button" title="Toggle Dark/Light Mode">
-                <i class="fa-solid fa-moon"></i>
-            </button>
-            <span class="status-dot" title="Active"></span>
-        </div>
-    </header>
-
-    <!-- Main Content Container -->
-    <main class="page-container container-fluid px-3 px-md-5 py-4">
-
-        <!-- ================= TAB 1: PASSWORD STRENGTH CHECKER ================= -->
-        <section id="tab-checker" class="tab-content-panel active">
-            <div class="page-header mb-4">
-                <div>
-                    <h1 class="page-title"><i class="fa-solid fa-gauge-high text-primary"></i> Real-Time Password Analyzer</h1>
-                    <p class="page-subtitle">Cryptographic entropy scoring, crack-time prediction & heuristic attack vulnerability analysis</p>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-lg-7">
-                    <div class="cyber-card mb-4">
-                        <label class="cyber-label mb-2"><i class="fa-solid fa-key me-2 text-primary"></i> Test Any Password In Real-Time</label>
-                        <div class="input-with-icon mb-3">
-                            <i class="fa-solid fa-lock input-icon"></i>
-                            <input type="password" id="checkerPasswordInput" class="cyber-input" placeholder="Type or paste a password to inspect security..." autocomplete="off">
-                            <button type="button" id="checkerToggleVisibility" class="input-action-btn" title="Toggle Visibility">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                        </div>
-
-                        <!-- Linear Strength Bar -->
-                        <div class="strength-bar-container mb-2">
-                            <div class="strength-bar-segment" id="seg1"></div>
-                            <div class="strength-bar-segment" id="seg2"></div>
-                            <div class="strength-bar-segment" id="seg3"></div>
-                            <div class="strength-bar-segment" id="seg4"></div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <span class="small text-muted">Evaluation Level:</span>
-                            <span id="strengthBadge" class="badge-strength weak"><i class="fa-solid fa-circle-exclamation me-1"></i> Empty</span>
-                        </div>
-                    </div>
-
-                    <!-- Security Suggestions -->
-                    <div class="cyber-card">
-                        <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-lightbulb text-warning me-2"></i> Security Recommendations</h5>
-                        <div id="suggestionsList">
-                            <div class="cyber-alert cyber-alert-info mb-0">
-                                <i class="fa-solid fa-info-circle"></i>
-                                <div>Type a password above to receive real-time cryptographic hardness suggestions.</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-5">
-                    <div class="cyber-card text-center mb-4">
-                        <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-shield-halved text-cyan me-2"></i> Security Score</h5>
-                        
-                        <!-- Circular SVG Gauge -->
-                        <div class="circular-gauge-wrapper my-3 mx-auto">
-                            <svg class="circular-gauge-svg" viewBox="0 0 100 100">
-                                <circle class="circular-gauge-bg" cx="50" cy="50" r="45"></circle>
-                                <circle class="circular-gauge-meter" id="circularGaugeMeter" cx="50" cy="50" r="45" style="stroke-dashoffset: 283; stroke: #EF4444;"></circle>
-                            </svg>
-                            <div class="circular-gauge-content">
-                                <div class="circular-gauge-number" id="circularGaugeScore">0</div>
-                                <div class="circular-gauge-unit" id="circularGaugeLabel">Score</div>
-                            </div>
-                        </div>
-
-                        <div class="row g-2 mt-2">
-                            <div class="col-6">
-                                <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
-                                    <div class="text-muted small mb-1">Brute-Force Crack</div>
-                                    <div class="fw-bold text-theme-primary" id="crackTimeText">Instant</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
-                                    <div class="text-muted small mb-1">Shannon Entropy</div>
-                                    <div class="fw-bold text-cyan" id="entropyBitsText">0 bits</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Checklist Rules -->
-                    <div class="cyber-card">
-                        <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-list-check text-primary me-2"></i> Hardness Matrix</h5>
-                        <ul class="rule-checklist p-0 m-0" id="ruleChecklist" style="list-style: none;">
-                            <li class="rule-item" id="rule-length"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>At least 8 characters long</span></li>
-                            <li class="rule-item" id="rule-upper"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>Contains uppercase letters (A-Z)</span></li>
-                            <li class="rule-item" id="rule-lower"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>Contains lowercase letters (a-z)</span></li>
-                            <li class="rule-item" id="rule-digit"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>Contains numerical digits (0-9)</span></li>
-                            <li class="rule-item" id="rule-special"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>Contains special symbols (!@#$%^&*)</span></li>
-                            <li class="rule-item" id="rule-repeats"><div class="rule-icon"><i class="fa-solid fa-check"></i></div> <span>No triple repeated characters (aaa, 111)</span></li>
-                            <li class="rule-item" id="rule-sequential"><div class="rule-icon"><i class="fa-solid fa-check"></i></div> <span>No keyboard walks (qwerty, 12345)</span></li>
-                            <li class="rule-item" id="rule-common"><div class="rule-icon"><i class="fa-solid fa-check"></i></div> <span>Not in common breached passwords list</span></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= TAB 2: SMART PASSWORD GENERATOR ================= -->
-        <section id="tab-generator" class="tab-content-panel">
-            <div class="page-header mb-4">
-                <div>
-                    <h1 class="page-title"><i class="fa-solid fa-wand-magic-sparkles text-primary"></i> Cryptographic Password Generator</h1>
-                    <p class="page-subtitle">Generate cryptographically secure, unpredictable passwords with custom entropy rules</p>
-                </div>
-            </div>
-
-            <div class="row g-4 justify-content-center">
-                <div class="col-lg-8">
-                    <div class="cyber-card p-4 p-md-5 mb-4">
-                        <!-- Generated Password Output Box -->
-                        <div class="p-3 p-md-4 rounded-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: rgba(8, 14, 30, 0.9); border: 2px solid var(--border-glow);">
-                            <span id="generatedPasswordDisplay" class="fs-4 font-monospace fw-bold text-theme-primary text-break" style="letter-spacing: 1px;">Click Generate</span>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn-cyber-outline" onclick="generateNewPassword()" title="Regenerate">
-                                    <i class="fa-solid fa-rotate"></i> Refresh
-                                </button>
-                                <button type="button" class="btn-cyber-primary" onclick="copyGeneratedPassword()" title="Copy to Clipboard">
-                                    <i class="fa-solid fa-copy"></i> Copy
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Controls -->
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="cyber-label m-0">Password Length: <span id="lengthValue" class="text-cyan fw-bold fs-5">16</span> characters</label>
-                            </div>
-                            <input type="range" class="form-range" id="genLengthSlider" min="8" max="32" value="16" oninput="document.getElementById('lengthValue').innerText = this.value; generateNewPassword();">
-                        </div>
-
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
-                                    <span>Uppercase Letters (A-Z)</span>
-                                    <label class="cyber-switch">
-                                        <input type="checkbox" id="genOptUpper" checked onchange="generateNewPassword()">
-                                        <span class="switch-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
-                                    <span>Lowercase Letters (a-z)</span>
-                                    <label class="cyber-switch">
-                                        <input type="checkbox" id="genOptLower" checked onchange="generateNewPassword()">
-                                        <span class="switch-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
-                                    <span>Numbers (0-9)</span>
-                                    <label class="cyber-switch">
-                                        <input type="checkbox" id="genOptDigits" checked onchange="generateNewPassword()">
-                                        <span class="switch-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
-                                    <span>Special Symbols (!@#$%)</span>
-                                    <label class="cyber-switch">
-                                        <input type="checkbox" id="genOptSymbols" checked onchange="generateNewPassword()">
-                                        <span class="switch-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
-                                    <span>Exclude Ambiguous Characters (l, 1, I, O, 0)</span>
-                                    <label class="cyber-switch">
-                                        <input type="checkbox" id="genOptAmbiguous" onchange="generateNewPassword()">
-                                        <span class="switch-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-end gap-3">
-                            <button type="button" class="btn-cyber-success px-4 py-2" onclick="saveGeneratedToVault()">
-                                <i class="fa-solid fa-vault me-1"></i> Save to Vault
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= TAB 3: PASSWORD VAULT ================= -->
-        <section id="tab-vault" class="tab-content-panel">
-            <div class="page-header mb-4">
-                <div>
-                    <h1 class="page-title"><i class="fa-solid fa-vault text-primary"></i> Secure Password Vault</h1>
-                    <p class="page-subtitle">Zero-knowledge encrypted password repository with real-time audit & masked reveal</p>
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation (Exact match from _Layout.cshtml) -->
+        <aside class="app-sidebar" id="appSidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
                 </div>
                 <div>
-                    <button class="btn-cyber-primary" data-bs-toggle="modal" data-bs-target="#addPasswordModal">
-                        <i class="fa-solid fa-plus"></i> Add New Password
+                    <div class="brand-text">SecurePass</div>
+                </div>
+                <span class="brand-badge ms-auto">AES-256</span>
+            </div>
+
+            <div class="sidebar-menu">
+                <div class="menu-category-title">Core Vault</div>
+                <a href="javascript:void(0)" class="nav-link-item active" onclick="navigateTo('dashboard', this)">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="openAddModal()">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>Add Password</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('vault', this)">
+                    <i class="fa-solid fa-vault"></i>
+                    <span>Password Vault</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('favorites', this)">
+                    <i class="fa-solid fa-star text-warning"></i>
+                    <span>Favorites</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('categories', this)">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Categories</span>
+                </a>
+
+                <div class="menu-category-title mt-2">Security Tools</div>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('checker', this)">
+                    <i class="fa-solid fa-shield-virus"></i>
+                    <span>Strength Checker</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('generator', this)">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Pass Generator</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('health', this)">
+                    <i class="fa-solid fa-heart-pulse text-danger"></i>
+                    <span>Password Health</span>
+                </a>
+
+                <div class="menu-category-title mt-2">System</div>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('settings', this)">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-quick-pill">
+                    <div class="user-avatar">
+                        N
+                    </div>
+                    <div class="overflow-hidden flex-grow-1">
+                        <div class="fw-semibold text-truncate small">Nensi Borad</div>
+                        <div class="text-muted small text-truncate" style="font-size: 0.75rem;">Protected by AES-256</div>
+                    </div>
+                    <span class="status-dot ms-2 position-static" title="Secure Session Active"></span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="app-main">
+            <!-- Top Header -->
+            <header class="app-topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle-btn d-lg-none" id="sidebarToggleBtn" onclick="toggleSidebar()">
+                        <i class="fa-solid fa-bars"></i>
                     </button>
-                </div>
-            </div>
-
-            <!-- Vault Search & Filter Toolbar -->
-            <div class="cyber-card mb-4 p-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 400px;">
-                    <input type="text" id="vaultSearchInput" class="cyber-input py-2" placeholder="Search accounts by title, website, or username..." oninput="renderVaultTable()">
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <select id="vaultCategoryFilter" class="cyber-select py-2" onchange="renderVaultTable()">
-                        <option value="All">All Categories</option>
-                        <option value="Social">Social</option>
-                        <option value="Work">Work</option>
-                        <option value="Banking">Banking</option>
-                        <option value="Personal">Personal</option>
-                        <option value="Entertainment">Entertainment</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Vault Table -->
-            <div class="cyber-table-wrapper">
-                <table class="cyber-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 40px;"><i class="fa-regular fa-star"></i></th>
-                            <th>Account Title</th>
-                            <th>Website / URL</th>
-                            <th>Username / Email</th>
-                            <th>Password</th>
-                            <th>Strength</th>
-                            <th>Score</th>
-                            <th>Age</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="vaultTableBody">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- ================= TAB 4: SECURITY HEALTH AUDITOR ================= -->
-        <section id="tab-health" class="tab-content-panel">
-            <div class="page-header mb-4">
-                <div>
-                    <h1 class="page-title"><i class="fa-solid fa-heart-pulse text-danger"></i> Vault Health & Vulnerability Auditor</h1>
-                    <p class="page-subtitle">Comprehensive security posture evaluation across your entire password catalog</p>
-                </div>
-            </div>
-
-            <div class="row g-4 mb-4">
-                <div class="col-md-3">
-                    <div class="cyber-card stat-card">
-                        <div class="stat-info">
-                            <div class="stat-label">Security Health</div>
-                            <div class="stat-value text-success" id="healthOverallScore">88%</div>
-                        </div>
-                        <div class="stat-icon green"><i class="fa-solid fa-shield-heart"></i></div>
+                    <div class="topbar-search-form d-none d-md-block">
+                        <i class="fa-solid fa-magnifying-glass topbar-search-icon"></i>
+                        <input type="text" id="globalSearchInput" class="topbar-search-input" placeholder="Search passwords, websites..." oninput="handleGlobalSearch(this.value)" />
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="cyber-card stat-card">
-                        <div class="stat-info">
-                            <div class="stat-label">Weak Passwords</div>
-                            <div class="stat-value text-danger" id="healthWeakCount">0</div>
-                        </div>
-                        <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="cyber-card stat-card">
-                        <div class="stat-info">
-                            <div class="stat-label">Reused Credentials</div>
-                            <div class="stat-value text-warning" id="healthDuplicateCount">0</div>
-                        </div>
-                        <div class="stat-icon orange"><i class="fa-solid fa-clone"></i></div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="cyber-card stat-card">
-                        <div class="stat-info">
-                            <div class="stat-label">Total Accounts</div>
-                            <div class="stat-value text-cyan" id="healthTotalCount">4</div>
-                        </div>
-                        <div class="stat-icon cyan"><i class="fa-solid fa-key"></i></div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="cyber-card">
-                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-circle-exclamation text-warning me-2"></i> Security Recommendations</h5>
-                <div id="healthAuditAlerts">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-        </section>
+                <div class="topbar-right">
+                    <button type="button" class="btn-cyber-primary py-2 px-3 small" onclick="openAddModal()">
+                        <i class="fa-solid fa-plus"></i> <span class="d-none d-sm-inline">New Password</span>
+                    </button>
 
-    </main>
+                    <button class="icon-button" id="themeToggleBtn" title="Toggle Light/Dark Theme" onclick="toggleAppTheme()">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+
+                    <div class="user-avatar" style="width: 36px; height: 36px; cursor: pointer;" title="Nensi Borad">
+                        N
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Views Container -->
+            <div class="page-container">
+
+                <!-- 1. DASHBOARD VIEW (Default View) -->
+                <div id="view-dashboard" class="view-section active">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-gauge-high"></i> Command Center</h1>
+                            <p class="page-subtitle">Real-time cryptographic audit & vault vulnerability telemetry</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn-cyber-primary" onclick="openAddModal()">
+                                <i class="fa-solid fa-plus"></i> Add Credential
+                            </button>
+                            <button type="button" class="btn-cyber-outline" onclick="navigateTo('generator')">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Generator
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4 Stat Cards -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="cyber-card stat-card h-100" onclick="navigateTo('vault')" style="cursor: pointer;">
+                                <div class="stat-info">
+                                    <div class="stat-label">Total Passwords</div>
+                                    <div class="stat-value" id="dashTotalCount">4</div>
+                                </div>
+                                <div class="stat-icon purple"><i class="fa-solid fa-vault"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="cyber-card stat-card h-100" onclick="navigateTo('health')" style="cursor: pointer;">
+                                <div class="stat-info">
+                                    <div class="stat-label">Vault Health</div>
+                                    <div class="stat-value text-success" id="dashHealthScore">85%</div>
+                                </div>
+                                <div class="stat-icon green"><i class="fa-solid fa-heart-pulse"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="cyber-card stat-card h-100" onclick="navigateTo('health')" style="cursor: pointer;">
+                                <div class="stat-info">
+                                    <div class="stat-label">Weak Credentials</div>
+                                    <div class="stat-value text-danger" id="dashWeakCount">1</div>
+                                </div>
+                                <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="cyber-card stat-card h-100" onclick="navigateTo('health')" style="cursor: pointer;">
+                                <div class="stat-info">
+                                    <div class="stat-label">Expired (>90d)</div>
+                                    <div class="stat-value text-warning" id="dashExpiredCount">1</div>
+                                </div>
+                                <div class="stat-icon orange"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Action Cards -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-4">
+                            <div class="cyber-card p-3 d-flex align-items-center gap-3" onclick="navigateTo('checker')" style="cursor: pointer;">
+                                <div class="stat-icon cyan"><i class="fa-solid fa-gauge-simple-high"></i></div>
+                                <div>
+                                    <div class="fw-bold text-theme-primary">Strength Checker</div>
+                                    <div class="text-muted small">Real-time entropy and crack time</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="cyber-card p-3 d-flex align-items-center gap-3" onclick="navigateTo('generator')" style="cursor: pointer;">
+                                <div class="stat-icon purple"><i class="fa-solid fa-key"></i></div>
+                                <div>
+                                    <div class="fw-bold text-theme-primary">Password Generator</div>
+                                    <div class="text-muted small">Custom crypto entropy builder</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="cyber-card p-3 d-flex align-items-center gap-3" onclick="navigateTo('health')" style="cursor: pointer;">
+                                <div class="stat-icon green"><i class="fa-solid fa-shield-virus"></i></div>
+                                <div>
+                                    <div class="fw-bold text-theme-primary">Security Health Audit</div>
+                                    <div class="text-muted small">Scan duplicate and stale logins</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Passwords Table -->
+                    <div class="cyber-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="text-theme-primary fw-bold m-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Vault Credentials</h5>
+                            <button class="btn btn-sm btn-cyber-outline py-1 px-3" onclick="navigateTo('vault')">View All &rarr;</button>
+                        </div>
+                        <div class="cyber-table-wrapper">
+                            <table class="cyber-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 35px;"><i class="fa-regular fa-star"></i></th>
+                                        <th>Account Title</th>
+                                        <th>Website / URL</th>
+                                        <th>Username / Email</th>
+                                        <th>Password</th>
+                                        <th>Strength</th>
+                                        <th>Score</th>
+                                        <th>Age / Expiry</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashTableBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. PASSWORD VAULT VIEW -->
+                <div id="view-vault" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-vault"></i> Password Vault</h1>
+                            <p class="page-subtitle">Manage and audit zero-knowledge encrypted credentials</p>
+                        </div>
+                        <div>
+                            <button type="button" class="btn-cyber-primary" onclick="openAddModal()">
+                                <i class="fa-solid fa-plus"></i> Add New Password
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="cyber-card mb-4 p-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 400px;">
+                            <input type="text" id="vaultFilterInput" class="cyber-input py-2" placeholder="Search accounts, usernames, domains..." oninput="renderVaultViews()">
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <select id="vaultCategoryFilter" class="cyber-select py-2" onchange="renderVaultViews()">
+                                <option value="All">All Categories</option>
+                                <option value="Work">Work</option>
+                                <option value="Banking">Banking</option>
+                                <option value="Social">Social</option>
+                                <option value="Personal">Personal</option>
+                                <option value="Entertainment">Entertainment</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cyber-table-wrapper">
+                        <table class="cyber-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 35px;"><i class="fa-regular fa-star"></i></th>
+                                    <th>Account Title</th>
+                                    <th>Website / URL</th>
+                                    <th>Username / Email</th>
+                                    <th>Password</th>
+                                    <th>Strength</th>
+                                    <th>Score</th>
+                                    <th>Age / Expiry</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fullVaultTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. STRENGTH CHECKER VIEW -->
+                <div id="view-checker" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-shield-virus"></i> Real-Time Password Strength Checker</h1>
+                            <p class="page-subtitle">Live Shannon entropy, brute-force crack time, and heuristic analysis</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <div class="cyber-card mb-4">
+                                <label class="cyber-label mb-2"><i class="fa-solid fa-key me-2 text-primary"></i> Enter Password to Inspect</label>
+                                <div class="input-with-icon mb-3">
+                                    <i class="fa-solid fa-lock input-icon"></i>
+                                    <input type="password" id="chkPassInput" class="cyber-input" placeholder="Type or paste any password..." autocomplete="off">
+                                    <button type="button" id="chkEyeBtn" class="input-action-btn" onclick="toggleCheckerEye()">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+
+                                <div class="strength-bar-container mb-2">
+                                    <div class="strength-bar-segment" id="cSeg1"></div>
+                                    <div class="strength-bar-segment" id="cSeg2"></div>
+                                    <div class="strength-bar-segment" id="cSeg3"></div>
+                                    <div class="strength-bar-segment" id="cSeg4"></div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span class="small text-muted">Evaluation Rating:</span>
+                                    <span id="chkBadge" class="badge-strength weak"><i class="fa-solid fa-circle-exclamation me-1"></i> Empty</span>
+                                </div>
+                            </div>
+
+                            <div class="cyber-card">
+                                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-lightbulb text-warning me-2"></i> Security Recommendations</h5>
+                                <div id="chkSuggestions">
+                                    <div class="cyber-alert cyber-alert-info mb-0">
+                                        <i class="fa-solid fa-info-circle"></i>
+                                        <div>Type a password to evaluate its real-time resistance to attacks.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-5">
+                            <div class="cyber-card text-center mb-4">
+                                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-shield-halved text-cyan me-2"></i> Security Score</h5>
+                                <div class="circular-gauge-wrapper my-3 mx-auto">
+                                    <svg class="circular-gauge-svg" viewBox="0 0 100 100">
+                                        <circle class="circular-gauge-bg" cx="50" cy="50" r="45"></circle>
+                                        <circle class="circular-gauge-meter" id="chkMeter" cx="50" cy="50" r="45" style="stroke-dashoffset: 283; stroke: #EF4444;"></circle>
+                                    </svg>
+                                    <div class="circular-gauge-content">
+                                        <div class="circular-gauge-number" id="chkScoreNum">0</div>
+                                        <div class="circular-gauge-unit" id="chkScoreUnit">Score</div>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mt-2">
+                                    <div class="col-6">
+                                        <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                            <div class="text-muted small mb-1">Brute-Force Crack</div>
+                                            <div class="fw-bold text-theme-primary" id="chkCrackTime">Instant</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                            <div class="text-muted small mb-1">Shannon Entropy</div>
+                                            <div class="fw-bold text-cyan" id="chkEntropy">0 bits</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="cyber-card">
+                                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-list-check text-primary me-2"></i> Hardness Matrix</h5>
+                                <ul class="rule-checklist p-0 m-0" id="chkRuleList" style="list-style: none;">
+                                    <li class="rule-item" id="r-len"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>At least 8 characters long</span></li>
+                                    <li class="rule-item" id="r-up"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>Uppercase letters (A-Z)</span></li>
+                                    <li class="rule-item" id="r-low"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>Lowercase letters (a-z)</span></li>
+                                    <li class="rule-item" id="r-num"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>Numerical digits (0-9)</span></li>
+                                    <li class="rule-item" id="r-sym"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>Special symbols (!@#$%^&*)</span></li>
+                                    <li class="rule-item" id="r-rep"><div class="rule-icon"><i class="fa-solid fa-check"></i></div> <span>No repeated characters (aaa, 111)</span></li>
+                                    <li class="rule-item" id="r-seq"><div class="rule-icon"><i class="fa-solid fa-check"></i></div> <span>No keyboard walks (qwerty, 12345)</span></li>
+                                    <li class="rule-item" id="r-com"><div class="rule-icon"><i class="fa-solid fa-check"></i></div> <span>Not in common breached passwords list</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. PASSWORD GENERATOR VIEW -->
+                <div id="view-generator" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Password Generator</h1>
+                            <p class="page-subtitle">Cryptographically secure, random high-entropy passwords</p>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="cyber-card p-4 p-md-5 mb-4">
+                                <div class="p-3 p-md-4 rounded-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: rgba(8, 14, 30, 0.9); border: 2px solid var(--border-glow);">
+                                    <span id="genDisplay" class="fs-4 font-monospace fw-bold text-theme-primary text-break" style="letter-spacing: 1px;">Click Generate</span>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn-cyber-outline" onclick="doGeneratePass()" title="Refresh">
+                                            <i class="fa-solid fa-rotate"></i> Refresh
+                                        </button>
+                                        <button type="button" class="btn-cyber-primary" onclick="copyGenPass()" title="Copy">
+                                            <i class="fa-solid fa-copy"></i> Copy
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="cyber-label m-0">Password Length: <span id="genLenNum" class="text-cyan fw-bold fs-5">16</span> characters</label>
+                                    </div>
+                                    <input type="range" class="form-range" id="genSlider" min="8" max="32" value="16" oninput="document.getElementById('genLenNum').innerText = this.value; doGeneratePass();">
+                                </div>
+
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                            <span>Uppercase Letters (A-Z)</span>
+                                            <label class="cyber-switch">
+                                                <input type="checkbox" id="gUpper" checked onchange="doGeneratePass()">
+                                                <span class="switch-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                            <span>Lowercase Letters (a-z)</span>
+                                            <label class="cyber-switch">
+                                                <input type="checkbox" id="gLower" checked onchange="doGeneratePass()">
+                                                <span class="switch-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                            <span>Numbers (0-9)</span>
+                                            <label class="cyber-switch">
+                                                <input type="checkbox" id="gDigits" checked onchange="doGeneratePass()">
+                                                <span class="switch-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                            <span>Special Symbols (!@#$%)</span>
+                                            <label class="cyber-switch">
+                                                <input type="checkbox" id="gSymbols" checked onchange="doGeneratePass()">
+                                                <span class="switch-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="button" class="btn-cyber-success px-4 py-2" onclick="saveGenToVault()">
+                                        <i class="fa-solid fa-vault me-1"></i> Save to Vault
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. FAVORITES VIEW -->
+                <div id="view-favorites" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-star text-warning"></i> Favorite Accounts</h1>
+                            <p class="page-subtitle">Starred high-priority credentials for rapid access</p>
+                        </div>
+                    </div>
+                    <div class="row g-3" id="favoritesGrid">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- 6. CATEGORIES VIEW -->
+                <div id="view-categories" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-layer-group"></i> Categories Browser</h1>
+                            <p class="page-subtitle">Credentials organized by operational domain</p>
+                        </div>
+                    </div>
+                    <div class="row g-3" id="categoriesGrid">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- 7. HEALTH AUDITOR VIEW -->
+                <div id="view-health" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-heart-pulse text-danger"></i> Vault Health Auditor</h1>
+                            <p class="page-subtitle">Vulnerability assessment across all stored credentials</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="cyber-card stat-card">
+                                <div class="stat-info">
+                                    <div class="stat-label">Health Score</div>
+                                    <div class="stat-value text-success" id="hAudScore">85%</div>
+                                </div>
+                                <div class="stat-icon green"><i class="fa-solid fa-shield-heart"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="cyber-card stat-card">
+                                <div class="stat-info">
+                                    <div class="stat-label">Weak Passwords</div>
+                                    <div class="stat-value text-danger" id="hAudWeak">1</div>
+                                </div>
+                                <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="cyber-card stat-card">
+                                <div class="stat-info">
+                                    <div class="stat-label">Reused Passwords</div>
+                                    <div class="stat-value text-warning" id="hAudDup">0</div>
+                                </div>
+                                <div class="stat-icon orange"><i class="fa-solid fa-clone"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="cyber-card stat-card">
+                                <div class="stat-info">
+                                    <div class="stat-label">Expired (>90d)</div>
+                                    <div class="stat-value text-cyan" id="hAudExp">1</div>
+                                </div>
+                                <div class="stat-icon cyan"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cyber-card">
+                        <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-triangle-exclamation text-warning me-2"></i> Detected Security Issues</h5>
+                        <div id="hAudAlerts"></div>
+                    </div>
+                </div>
+
+                <!-- 8. SETTINGS VIEW -->
+                <div id="view-settings" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-sliders"></i> System Settings</h1>
+                            <p class="page-subtitle">Configure vault preferences & security watchdogs</p>
+                        </div>
+                    </div>
+
+                    <div class="cyber-card" style="max-width: 700px;">
+                        <div class="cyber-form-group mb-4">
+                            <label class="cyber-label">Theme Preference</label>
+                            <div class="d-flex gap-3">
+                                <button type="button" class="btn-cyber-outline" onclick="setAppTheme('dark')"><i class="fa-solid fa-moon me-1"></i> Dark Mode (Cyber)</button>
+                                <button type="button" class="btn-cyber-outline" onclick="setAppTheme('light')"><i class="fa-solid fa-sun me-1"></i> Light Mode</button>
+                            </div>
+                        </div>
+                        <div class="cyber-form-group mb-4">
+                            <label class="cyber-label">Auto-Lock Inactivity Watchdog</label>
+                            <select class="cyber-select" style="max-width: 300px;">
+                                <option value="15">15 Minutes</option>
+                                <option value="30" selected>30 Minutes</option>
+                                <option value="60">1 Hour</option>
+                            </select>
+                            <span class="text-muted small mt-1 d-block">Automatically locks vault if no mouse or keystroke activity is detected.</span>
+                        </div>
+                        <div class="cyber-form-group mb-3">
+                            <label class="cyber-label">Default Generator Length</label>
+                            <input type="number" class="cyber-input" value="16" min="8" max="32" style="max-width: 150px;">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
     <!-- Modal: Add New Password -->
     <div class="modal fade" id="addPasswordModal" tabindex="-1" aria-hidden="true">
@@ -392,40 +617,40 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addVaultForm" onsubmit="event.preventDefault(); submitNewVaultItem();">
+                    <form id="addVaultForm" onsubmit="event.preventDefault(); handleAddVaultSubmit();">
                         <div class="cyber-form-group mb-3">
                             <label class="cyber-label">Account Title *</label>
-                            <input type="text" id="modalTitle" class="cyber-input" placeholder="e.g. GitHub, Google, Netflix" required>
+                            <input type="text" id="mTitle" class="cyber-input" placeholder="e.g. GitHub, Google, Banking" required>
                         </div>
                         <div class="cyber-form-group mb-3">
                             <label class="cyber-label">Category</label>
-                            <select id="modalCategory" class="cyber-select">
-                                <option value="Personal">Personal</option>
+                            <select id="mCategory" class="cyber-select">
                                 <option value="Work">Work</option>
-                                <option value="Social">Social</option>
                                 <option value="Banking">Banking</option>
+                                <option value="Social">Social</option>
+                                <option value="Personal">Personal</option>
                                 <option value="Entertainment">Entertainment</option>
                             </select>
                         </div>
                         <div class="cyber-form-group mb-3">
                             <label class="cyber-label">Website or App URL</label>
-                            <input type="url" id="modalWebsite" class="cyber-input" placeholder="https://...">
+                            <input type="url" id="mWebsite" class="cyber-input" placeholder="https://...">
                         </div>
                         <div class="cyber-form-group mb-3">
                             <label class="cyber-label">Username or Email *</label>
-                            <input type="text" id="modalUsername" class="cyber-input" placeholder="e.g. user@domain.com" required>
+                            <input type="text" id="mUsername" class="cyber-input" placeholder="e.g. nensi@domain.com" required>
                         </div>
                         <div class="cyber-form-group mb-3">
                             <label class="cyber-label">Password *</label>
                             <div class="input-with-icon">
                                 <i class="fa-solid fa-lock input-icon"></i>
-                                <input type="password" id="modalPassword" class="cyber-input" placeholder="Enter password" required oninput="evaluateModalPassword(this.value)">
+                                <input type="password" id="mPassword" class="cyber-input" placeholder="Enter master password" required oninput="handleModalPassEval(this.value)">
                             </div>
-                            <div id="modalPasswordBadge" class="mt-2"></div>
+                            <div id="mPassBadge" class="mt-2"></div>
                         </div>
                         <div class="cyber-form-group mb-3">
                             <label class="cyber-label">Notes (Optional)</label>
-                            <textarea id="modalNotes" class="cyber-textarea" rows="2" placeholder="Recovery codes, PIN, etc."></textarea>
+                            <textarea id="mNotes" class="cyber-textarea" rows="2" placeholder="Recovery codes, PIN, etc."></textarea>
                         </div>
                         <div class="d-flex justify-content-end gap-2 mt-4">
                             <button type="button" class="btn-cyber-outline" data-bs-dismiss="modal">Cancel</button>
@@ -437,305 +662,102 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- App JavaScript Logic -->
+    <!-- Core Engines -->
     <script src="wwwroot/js/password-analyzer.js"></script>
     <script src="wwwroot/js/password-generator.js"></script>
+
     <script>
-        // Tab Switcher
-        function switchTab(tabId, el) {
-            document.querySelectorAll('.tab-content-panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-pill-cyber').forEach(b => b.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-            if (el) el.classList.add('active');
+        // Data Store
+        const initialVault = [
+            { id: 1, title: 'Google Workspace', website: 'https://accounts.google.com', username: 'admin@securepass.io', pass: 'K9#mQ!vL2$pZ8*wY', category: 'Work', isFav: true, date: '2026-08-15', ageDays: 24 },
+            { id: 2, title: 'GitHub Enterprise', website: 'https://github.com', username: 'boradnensi112', pass: 'Gh#88!SecureP@ss2026', category: 'Work', isFav: true, date: '2026-08-20', ageDays: 19 },
+            { id: 3, title: 'HDFC Bank Online', website: 'https://netbanking.hdfcbank.com', username: 'nensi_hdfc', pass: 'B@nk#99SecureVault!', category: 'Banking', isFav: false, date: '2026-05-30', ageDays: 101 },
+            { id: 4, title: 'Netflix Account', website: 'https://netflix.com', username: 'nensi@gmail.com', pass: 'Stream@2026!', category: 'Entertainment', isFav: false, date: '2026-08-28', ageDays: 11 }
+        ];
+
+        let vault = JSON.parse(localStorage.getItem('securepass_vault_store')) || initialVault;
+
+        function persistVault() {
+            localStorage.setItem('securepass_vault_store', JSON.stringify(vault));
+            renderDashboard();
+            renderVaultViews();
+            renderFavorites();
+            renderCategories();
+            renderHealth();
         }
 
-        // Theme Toggle
-        const themeBtn = document.getElementById('themeToggleBtn');
-        themeBtn.addEventListener('click', () => {
-            const html = document.documentElement;
-            const current = html.getAttribute('data-theme') || 'dark';
-            const next = current === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', next);
-            themeBtn.querySelector('i').className = next === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-            localStorage.setItem('securepass_theme', next);
-        });
+        // Navigation Router
+        function navigateTo(viewName, el) {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-link-item').forEach(l => l.classList.remove('active'));
+            
+            const target = document.getElementById('view-' + viewName);
+            if (target) target.classList.add('active');
 
-        // Initialize Theme from Storage
-        const savedTheme = localStorage.getItem('securepass_theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        themeBtn.querySelector('i').className = savedTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-
-        // --- PASSWORD CHECKER LOGIC ---
-        const checkerInput = document.getElementById('checkerPasswordInput');
-        const checkerEyeBtn = document.getElementById('checkerToggleVisibility');
-        checkerEyeBtn.addEventListener('click', () => {
-            const isPass = checkerInput.type === 'password';
-            checkerInput.type = isPass ? 'text' : 'password';
-            checkerEyeBtn.querySelector('i').className = isPass ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
-        });
-
-        checkerInput.addEventListener('input', (e) => {
-            const val = e.target.value;
-            const res = SecurePassAnalyzer.analyze(val);
-
-            // Update Linear Bar
-            const segs = [document.getElementById('seg1'), document.getElementById('seg2'), document.getElementById('seg3'), document.getElementById('seg4')];
-            segs.forEach(s => { s.className = 'strength-bar-segment'; s.style.backgroundColor = ''; });
-            if (res.score > 0) {
-                const activeCount = res.score >= 90 ? 4 : res.score >= 70 ? 3 : res.score >= 40 ? 2 : 1;
-                for (let i = 0; i < activeCount; i++) {
-                    segs[i].style.backgroundColor = res.colorHex;
-                }
-            }
-
-            // Update Badge
-            const badge = document.getElementById('strengthBadge');
-            const iconMap = {
-                'Very Strong': 'fa-shield-halved',
-                'Strong': 'fa-shield-check',
-                'Medium': 'fa-triangle-exclamation',
-                'Weak': 'fa-circle-exclamation',
-                'Empty': 'fa-circle-exclamation'
-            };
-            const badgeClass = res.strengthLevel.toLowerCase().replace(' ', '-');
-            badge.className = `badge-strength ${badgeClass}`;
-            badge.innerHTML = `<i class="fa-solid ${iconMap[res.strengthLevel] || 'fa-shield-halved'} me-1"></i> ${res.strengthLevel}`;
-
-            // Update SVG Gauge
-            const meter = document.getElementById('circularGaugeMeter');
-            const circumference = 283;
-            const offset = circumference - (res.score / 100 * circumference);
-            meter.style.strokeDashoffset = offset;
-            meter.style.stroke = res.colorHex;
-            document.getElementById('circularGaugeScore').innerText = res.score;
-            document.getElementById('circularGaugeLabel').innerText = res.strengthLevel;
-
-            // Crack time & Entropy
-            document.getElementById('crackTimeText').innerText = res.crackTimeFormatted;
-            document.getElementById('entropyBitsText').innerText = `${res.entropyBits} bits`;
-
-            // Update Checklist
-            updateRule('rule-length', res.hasMinLength);
-            updateRule('rule-upper', res.hasUppercase);
-            updateRule('rule-lower', res.hasLowercase);
-            updateRule('rule-digit', res.hasNumbers);
-            updateRule('rule-special', res.hasSpecialChars);
-            updateRule('rule-repeats', res.hasNoRepeatedChars);
-            updateRule('rule-sequential', res.hasNoSequentialChars);
-            updateRule('rule-common', res.isNotCommon);
-
-            // Update Suggestions
-            const sugList = document.getElementById('suggestionsList');
-            if (res.suggestions && res.suggestions.length > 0) {
-                sugList.innerHTML = res.suggestions.map(s => `
-                    <div class="cyber-alert cyber-alert-${res.score >= 80 ? 'success' : res.score >= 50 ? 'warning' : 'danger'} mb-2">
-                        <i class="fa-solid ${res.score >= 80 ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i>
-                        <div>${s}</div>
-                    </div>
-                `).join('');
+            if (el) {
+                el.classList.add('active');
             } else {
-                sugList.innerHTML = `
-                    <div class="cyber-alert cyber-alert-success mb-0">
-                        <i class="fa-solid fa-circle-check"></i>
-                        <div>Excellent! This password adheres to high-security cryptographic guidelines.</div>
-                    </div>
-                `;
+                const match = Array.from(document.querySelectorAll('.nav-link-item')).find(a => a.getAttribute('onclick')?.includes(viewName));
+                if (match) match.classList.add('active');
             }
-        });
 
-        function updateRule(elementId, passed) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            if (passed) {
-                el.className = 'rule-item passed';
-                el.querySelector('.rule-icon').innerHTML = '<i class="fa-solid fa-check"></i>';
-            } else {
-                el.className = 'rule-item';
-                el.querySelector('.rule-icon').innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            // Close mobile sidebar if open
+            document.getElementById('appSidebar').classList.remove('show');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleSidebar() {
+            document.getElementById('appSidebar').classList.toggle('show');
+        }
+
+        // Theme Switcher
+        function setAppTheme(mode) {
+            document.documentElement.setAttribute('data-theme', mode);
+            const icon = document.querySelector('#themeToggleBtn i');
+            if (icon) icon.className = mode === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            localStorage.setItem('sp_theme', mode);
+        }
+
+        function toggleAppTheme() {
+            const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+            setAppTheme(cur === 'dark' ? 'light' : 'dark');
+        }
+
+        const savedTh = localStorage.getItem('sp_theme') || 'dark';
+        setAppTheme(savedTh);
+
+        // Global Search
+        function handleGlobalSearch(q) {
+            navigateTo('vault');
+            document.getElementById('vaultFilterInput').value = q;
+            renderVaultViews();
+        }
+
+        // Modal Management
+        function openAddModal(prefillPass = '') {
+            if (prefillPass) {
+                document.getElementById('mPassword').value = prefillPass;
+                handleModalPassEval(prefillPass);
             }
-        }
-
-        // --- PASSWORD GENERATOR LOGIC ---
-        function generateNewPassword() {
-            const length = parseInt(document.getElementById('genLengthSlider').value) || 16;
-            const upper = document.getElementById('genOptUpper').checked;
-            const lower = document.getElementById('genOptLower').checked;
-            const digits = document.getElementById('genOptDigits').checked;
-            const symbols = document.getElementById('genOptSymbols').checked;
-            const ambiguous = document.getElementById('genOptAmbiguous').checked;
-
-            const pass = SecurePassGenerator.generate({
-                length: length,
-                includeUppercase: upper,
-                includeLowercase: lower,
-                includeDigits: digits,
-                includeSpecial: symbols,
-                excludeAmbiguous: ambiguous
-            });
-
-            document.getElementById('generatedPasswordDisplay').innerText = pass;
-        }
-
-        function copyGeneratedPassword() {
-            const pass = document.getElementById('generatedPasswordDisplay').innerText;
-            if (!pass || pass === 'Click Generate') return;
-            navigator.clipboard.writeText(pass).then(() => {
-                alert('Copied generated password to clipboard!');
-            });
-        }
-
-        function saveGeneratedToVault() {
-            const pass = document.getElementById('generatedPasswordDisplay').innerText;
-            if (!pass || pass === 'Click Generate') return;
-            document.getElementById('modalPassword').value = pass;
-            evaluateModalPassword(pass);
-            switchTab('vault');
             new bootstrap.Modal(document.getElementById('addPasswordModal')).show();
         }
 
-        // --- VAULT STORAGE & LOGIC ---
-        const defaultVault = [
-            { id: 1, title: 'Google Workspace', website: 'https://accounts.google.com', username: 'admin@securepass.io', pass: 'K9#mQ!vL2$pZ8*wY', category: 'Work', isFav: true, date: '2026-08-15', ageDays: 22 },
-            { id: 2, title: 'GitHub Enterprise', website: 'https://github.com', username: 'boradnensi112', pass: 'Gh#88!SecureP@ss2026', category: 'Work', isFav: true, date: '2026-08-20', ageDays: 17 },
-            { id: 3, title: 'HDFC Bank Online', website: 'https://netbanking.hdfcbank.com', username: 'nensi_hdfc', pass: 'B@nk#99SecureVault!', category: 'Banking', isFav: false, date: '2026-06-01', ageDays: 97 },
-            { id: 4, title: 'Netflix Account', website: 'https://netflix.com', username: 'nensi@gmail.com', pass: 'Stream@2026!', category: 'Entertainment', isFav: false, date: '2026-08-25', ageDays: 12 }
-        ];
-
-        let vaultData = JSON.parse(localStorage.getItem('securepass_vault')) || defaultVault;
-
-        function saveVault() {
-            localStorage.setItem('securepass_vault', JSON.stringify(vaultData));
-            renderVaultTable();
-            renderHealthAudit();
-        }
-
-        function renderVaultTable() {
-            const tbody = document.getElementById('vaultTableBody');
-            const search = (document.getElementById('vaultSearchInput').value || '').toLowerCase();
-            const cat = document.getElementById('vaultCategoryFilter').value;
-
-            const filtered = vaultData.filter(item => {
-                const matchSearch = item.title.toLowerCase().includes(search) || 
-                                    (item.website && item.website.toLowerCase().includes(search)) || 
-                                    item.username.toLowerCase().includes(search);
-                const matchCat = cat === 'All' || item.category === cat;
-                return matchSearch && matchCat;
-            });
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">No accounts match your criteria.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map(item => {
-                const analysis = SecurePassAnalyzer.analyze(item.pass);
-                const isExp = item.ageDays >= 90;
-                return `
-                    <tr>
-                        <td>
-                            <button type="button" class="btn btn-sm btn-link p-0 text-warning" onclick="toggleFav(${item.id})">
-                                <i class="fa-${item.isFav ? 'solid' : 'regular'} fa-star"></i>
-                            </button>
-                        </td>
-                        <td>
-                            <div class="fw-bold text-theme-primary">${item.title}</div>
-                            <span class="badge-category mt-1">${item.category}</span>
-                        </td>
-                        <td>
-                            ${item.website ? `<a href="${item.website}" target="_blank" class="cell-website-link small d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i> ${item.website}</a>` : `<span class="text-theme-muted small">—</span>`}
-                        </td>
-                        <td><span class="cell-username-text small">${item.username}</span></td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="cell-masked-dots" id="pass-dots-${item.id}">••••••••••••</span>
-                                <button type="button" class="btn btn-sm btn-link text-primary p-0" title="Reveal Password" onclick="toggleRevealPass(${item.id})">
-                                    <i class="fa-solid fa-eye" id="eye-icon-${item.id}"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-link text-info p-0" title="Copy" onclick="copyText('${item.pass}')">
-                                    <i class="fa-solid fa-copy"></i>
-                                </button>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="badge-strength ${analysis.strengthLevel.toLowerCase().replace(' ', '-')}">
-                                <i class="fa-solid ${analysis.score >= 90 ? 'fa-shield-halved' : analysis.score >= 70 ? 'fa-shield-check' : 'fa-triangle-exclamation'} me-1"></i> ${analysis.strengthLevel}
-                            </span>
-                        </td>
-                        <td><span class="fw-bold text-theme-primary fs-6">${analysis.score}</span><span class="text-theme-secondary opacity-75 small">/100</span></td>
-                        <td>
-                            ${isExp ? `<span class="badge bg-danger text-theme-primary small"><i class="fa-solid fa-clock-rotate-left me-1"></i> ${item.ageDays}d (Expired)</span>` : `<span class="badge-age"><i class="fa-regular fa-clock text-info me-1"></i> ${item.ageDays === 0 ? 'Today' : item.ageDays + 'd ago'}</span>`}
-                        </td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-cyber-danger py-1 px-2" title="Delete" onclick="deleteVaultItem(${item.id})">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function toggleRevealPass(id) {
-            const span = document.getElementById(`pass-dots-${id}`);
-            const icon = document.getElementById(`eye-icon-${id}`);
-            const item = vaultData.find(i => i.id === id);
-            if (!item) return;
-
-            if (span.innerText === '••••••••••••') {
-                span.innerText = item.pass;
-                span.classList.remove('cell-masked-dots');
-                span.classList.add('cell-username-text');
-                icon.className = 'fa-solid fa-eye-slash';
-                // Auto-mask after 10 seconds
-                setTimeout(() => {
-                    span.innerText = '••••••••••••';
-                    span.classList.remove('cell-username-text');
-                    span.classList.add('cell-masked-dots');
-                    icon.className = 'fa-solid fa-eye';
-                }, 10000);
-            } else {
-                span.innerText = '••••••••••••';
-                span.classList.remove('cell-username-text');
-                span.classList.add('cell-masked-dots');
-                icon.className = 'fa-solid fa-eye';
-            }
-        }
-
-        function toggleFav(id) {
-            const item = vaultData.find(i => i.id === id);
-            if (item) {
-                item.isFav = !item.isFav;
-                saveVault();
-            }
-        }
-
-        function deleteVaultItem(id) {
-            if (confirm('Are you sure you want to delete this password permanently?')) {
-                vaultData = vaultData.filter(i => i.id !== id);
-                saveVault();
-            }
-        }
-
-        function copyText(txt) {
-            navigator.clipboard.writeText(txt).then(() => alert('Password copied to clipboard!'));
-        }
-
-        function evaluateModalPassword(val) {
-            const badgeBox = document.getElementById('modalPasswordBadge');
-            if (!val) { badgeBox.innerHTML = ''; return; }
+        function handleModalPassEval(val) {
+            const badge = document.getElementById('mPassBadge');
+            if (!val) { badge.innerHTML = ''; return; }
             const res = SecurePassAnalyzer.analyze(val);
-            badgeBox.innerHTML = `<span class="badge-strength ${res.strengthLevel.toLowerCase().replace(' ', '-')}"><i class="fa-solid fa-shield-halved me-1"></i> ${res.strengthLevel} (${res.score}/100)</span>`;
+            badge.innerHTML = `<span class="badge-strength ${res.strengthLevel.toLowerCase().replace(' ', '-')}"><i class="fa-solid fa-shield-halved me-1"></i> ${res.strengthLevel} (${res.score}/100)</span>`;
         }
 
-        function submitNewVaultItem() {
-            const title = document.getElementById('modalTitle').value;
-            const category = document.getElementById('modalCategory').value;
-            const website = document.getElementById('modalWebsite').value;
-            const username = document.getElementById('modalUsername').value;
-            const pass = document.getElementById('modalPassword').value;
+        function handleAddVaultSubmit() {
+            const title = document.getElementById('mTitle').value;
+            const category = document.getElementById('mCategory').value;
+            const website = document.getElementById('mWebsite').value;
+            const username = document.getElementById('mUsername').value;
+            const pass = document.getElementById('mPassword').value;
 
             const newItem = {
                 id: Date.now(),
@@ -749,83 +771,330 @@
                 ageDays: 0
             };
 
-            vaultData.unshift(newItem);
-            saveVault();
+            vault.unshift(newItem);
+            persistVault();
             document.getElementById('addVaultForm').reset();
-            document.getElementById('modalPasswordBadge').innerHTML = '';
+            document.getElementById('mPassBadge').innerHTML = '';
             bootstrap.Modal.getInstance(document.getElementById('addPasswordModal')).hide();
         }
 
-        // --- HEALTH AUDITOR LOGIC ---
-        function renderHealthAudit() {
-            let total = vaultData.length;
-            let totalScore = 0;
-            let weakCount = 0;
-            let passMap = {};
-            let duplicateCount = 0;
-            let expiredCount = 0;
+        // Render Table Row Helper
+        function renderRowHtml(item) {
+            const analysis = SecurePassAnalyzer.analyze(item.pass);
+            const isExp = item.ageDays >= 90;
+            const strengthClass = analysis.strengthLevel.toLowerCase().replace(' ', '-');
+            const iconMap = {
+                'Very Strong': 'fa-shield-halved',
+                'Strong': 'fa-shield-check',
+                'Medium': 'fa-triangle-exclamation',
+                'Weak': 'fa-circle-exclamation'
+            };
 
-            vaultData.forEach(item => {
-                const res = SecurePassAnalyzer.analyze(item.pass);
-                totalScore += res.score;
-                if (res.score < 60) weakCount++;
-                if (item.ageDays >= 90) expiredCount++;
-                passMap[item.pass] = (passMap[item.pass] || 0) + 1;
-            });
-
-            Object.values(passMap).forEach(cnt => {
-                if (cnt > 1) duplicateCount += cnt;
-            });
-
-            const avgScore = total > 0 ? Math.round(totalScore / total) : 100;
-            document.getElementById('healthOverallScore').innerText = avgScore + '%';
-            document.getElementById('healthWeakCount').innerText = weakCount;
-            document.getElementById('healthDuplicateCount').innerText = duplicateCount;
-            document.getElementById('healthTotalCount').innerText = total;
-
-            const alertsBox = document.getElementById('healthAuditAlerts');
-            let alertsHtml = '';
-
-            if (weakCount > 0) {
-                alertsHtml += `
-                    <div class="cyber-alert cyber-alert-danger mb-2">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <div><strong>${weakCount} Weak Passwords Detected:</strong> Consider upgrading these credentials with the generator.</div>
-                    </div>
-                `;
-            }
-            if (duplicateCount > 0) {
-                alertsHtml += `
-                    <div class="cyber-alert cyber-alert-warning mb-2">
-                        <i class="fa-solid fa-clone"></i>
-                        <div><strong>${duplicateCount} Accounts Share Reused Passwords:</strong> Credential stuffing attacks could compromise multiple accounts.</div>
-                    </div>
-                `;
-            }
-            if (expiredCount > 0) {
-                alertsHtml += `
-                    <div class="cyber-alert cyber-alert-info mb-2">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                        <div><strong>${expiredCount} Accounts older than 90 days:</strong> Security policies recommend rotating credentials quarterly.</div>
-                    </div>
-                `;
-            }
-            if (!alertsHtml) {
-                alertsHtml = `
-                    <div class="cyber-alert cyber-alert-success mb-0">
-                        <i class="fa-solid fa-circle-check"></i>
-                        <div>Outstanding vault health! No weak, reused, or expired credentials detected.</div>
-                    </div>
-                `;
-            }
-            alertsBox.innerHTML = alertsHtml;
+            return `
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-link p-0 text-warning" onclick="toggleFavorite(${item.id})">
+                            <i class="fa-${item.isFav ? 'solid' : 'regular'} fa-star"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <div class="fw-bold text-theme-primary">${item.title}</div>
+                        <span class="badge-category mt-1">${item.category}</span>
+                    </td>
+                    <td>
+                        ${item.website ? `<a href="${item.website}" target="_blank" class="cell-website-link small d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i> ${item.website}</a>` : `<span class="text-theme-muted small">—</span>`}
+                    </td>
+                    <td><span class="cell-username-text small">${item.username}</span></td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="cell-masked-dots" id="pass-dots-${item.id}">••••••••••••</span>
+                            <button type="button" class="btn btn-sm btn-link text-primary p-0" title="Reveal Password" onclick="toggleReveal(${item.id})">
+                                <i class="fa-solid fa-eye" id="eye-${item.id}"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-link text-info p-0" title="Copy" onclick="copyValue('${item.pass}')">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge-strength ${strengthClass}">
+                            <i class="fa-solid ${iconMap[analysis.strengthLevel] || 'fa-shield-halved'} me-1"></i> ${analysis.strengthLevel}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="fw-bold text-theme-primary fs-6">${analysis.score}</span><span class="text-theme-secondary opacity-75 small">/100</span>
+                    </td>
+                    <td>
+                        ${isExp ? `<span class="badge bg-danger text-theme-primary small"><i class="fa-solid fa-clock-rotate-left me-1"></i> ${item.ageDays}d (Expired)</span>` : `<span class="badge-age"><i class="fa-regular fa-clock text-info me-1"></i> ${item.ageDays === 0 ? 'Today' : item.ageDays + 'd ago'}</span>`}
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-cyber-danger py-1 px-2" title="Delete" onclick="deleteItem(${item.id})">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
         }
 
-        // Initialize on load
+        function toggleReveal(id) {
+            const span = document.getElementById(`pass-dots-${id}`);
+            const icon = document.getElementById(`eye-${id}`);
+            const item = vault.find(i => i.id === id);
+            if (!item) return;
+
+            if (span.innerText === '••••••••••••') {
+                span.innerText = item.pass;
+                span.className = 'cell-username-text small font-monospace';
+                icon.className = 'fa-solid fa-eye-slash';
+                setTimeout(() => {
+                    span.innerText = '••••••••••••';
+                    span.className = 'cell-masked-dots';
+                    icon.className = 'fa-solid fa-eye';
+                }, 12000);
+            } else {
+                span.innerText = '••••••••••••';
+                span.className = 'cell-masked-dots';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        function toggleFavorite(id) {
+            const item = vault.find(i => i.id === id);
+            if (item) { item.isFav = !item.isFav; persistVault(); }
+        }
+
+        function deleteItem(id) {
+            if (confirm('Are you sure you want to delete this password permanently?')) {
+                vault = vault.filter(i => i.id !== id);
+                persistVault();
+            }
+        }
+
+        function copyValue(val) {
+            navigator.clipboard.writeText(val).then(() => alert('Password copied to clipboard!'));
+        }
+
+        // Render Dashboard
+        function renderDashboard() {
+            document.getElementById('dashTotalCount').innerText = vault.length;
+            let weak = 0; let exp = 0; let totalScore = 0;
+            vault.forEach(i => {
+                const res = SecurePassAnalyzer.analyze(i.pass);
+                totalScore += res.score;
+                if (res.score < 60) weak++;
+                if (i.ageDays >= 90) exp++;
+            });
+            const avg = vault.length > 0 ? Math.round(totalScore / vault.length) : 100;
+            document.getElementById('dashHealthScore').innerText = avg + '%';
+            document.getElementById('dashWeakCount').innerText = weak;
+            document.getElementById('dashExpiredCount').innerText = exp;
+
+            const tbody = document.getElementById('dashTableBody');
+            tbody.innerHTML = vault.slice(0, 5).map(renderRowHtml).join('');
+        }
+
+        // Render Vault
+        function renderVaultViews() {
+            const q = (document.getElementById('vaultFilterInput')?.value || '').toLowerCase();
+            const cat = document.getElementById('vaultCategoryFilter')?.value || 'All';
+
+            const filtered = vault.filter(i => {
+                const matchQ = i.title.toLowerCase().includes(q) || (i.website && i.website.toLowerCase().includes(q)) || i.username.toLowerCase().includes(q);
+                const matchCat = cat === 'All' || i.category === cat;
+                return matchQ && matchCat;
+            });
+
+            const tbody = document.getElementById('fullVaultTableBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">No accounts match search criteria.</td></tr>`;
+            } else {
+                tbody.innerHTML = filtered.map(renderRowHtml).join('');
+            }
+        }
+
+        // Render Favorites
+        function renderFavorites() {
+            const favs = vault.filter(i => i.isFav);
+            const grid = document.getElementById('favoritesGrid');
+            if (favs.length === 0) {
+                grid.innerHTML = `<div class="col-12 text-center py-5 text-muted"><i class="fa-regular fa-star fs-1 mb-2"></i><div>No favorite accounts yet. Star any account in the vault for quick access.</div></div>`;
+                return;
+            }
+            grid.innerHTML = favs.map(item => `
+                <div class="col-lg-4 col-md-6">
+                    <div class="cyber-card h-100 d-flex flex-column justify-content-between p-4">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="text-theme-primary fw-bold m-0">${item.title}</h5>
+                                <button type="button" class="btn btn-sm btn-link p-0 text-warning" onclick="toggleFavorite(${item.id})"><i class="fa-solid fa-star"></i></button>
+                            </div>
+                            <span class="badge-category mb-3">${item.category}</span>
+                            <div class="p-3 rounded-3 mb-3" style="background: rgba(8, 14, 30, 0.7); border: 1px solid var(--border-color);">
+                                <div class="text-theme-muted small mb-1">Username / Email</div>
+                                <div class="cell-username-text small mb-2">${item.username}</div>
+                                <hr class="border-secondary opacity-25 my-2">
+                                <div class="text-theme-muted small mb-1">Password</div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="cell-masked-dots" id="pass-dots-${item.id}">••••••••••••</span>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-link text-primary p-0" onclick="toggleReveal(${item.id})"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="btn btn-sm btn-link text-info p-0" onclick="copyValue('${item.pass}')"><i class="fa-solid fa-copy"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Categories
+        function renderCategories() {
+            const cats = ['Work', 'Banking', 'Social', 'Personal', 'Entertainment'];
+            const grid = document.getElementById('categoriesGrid');
+            grid.innerHTML = cats.map(c => {
+                const count = vault.filter(i => i.category === c).length;
+                const icon = c === 'Banking' ? 'fa-building-columns' : c === 'Work' ? 'fa-briefcase' : c === 'Social' ? 'fa-share-nodes' : c === 'Entertainment' ? 'fa-film' : 'fa-user';
+                return `
+                    <div class="col-md-4 col-sm-6">
+                        <div class="category-card" onclick="document.getElementById('vaultCategoryFilter').value='${c}'; navigateTo('vault'); renderVaultViews();">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="stat-icon purple" style="width: 44px; height: 44px; font-size: 1.2rem;"><i class="fa-solid ${icon}"></i></div>
+                                <div>
+                                    <h5 class="fw-bold text-theme-primary m-0">${c}</h5>
+                                    <span class="text-muted small">${count} Credentials Stored</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render Health
+        function renderHealth() {
+            let weak = 0; let exp = 0; let totalScore = 0;
+            let passMap = {}; let dup = 0;
+            vault.forEach(i => {
+                const res = SecurePassAnalyzer.analyze(i.pass);
+                totalScore += res.score;
+                if (res.score < 60) weak++;
+                if (i.ageDays >= 90) exp++;
+                passMap[i.pass] = (passMap[i.pass] || 0) + 1;
+            });
+            Object.values(passMap).forEach(c => { if (c > 1) dup += c; });
+
+            const avg = vault.length > 0 ? Math.round(totalScore / vault.length) : 100;
+            document.getElementById('hAudScore').innerText = avg + '%';
+            document.getElementById('hAudWeak').innerText = weak;
+            document.getElementById('hAudDup').innerText = dup;
+            document.getElementById('hAudExp').innerText = exp;
+
+            let alerts = '';
+            if (weak > 0) {
+                alerts += `<div class="cyber-alert cyber-alert-danger mb-2"><i class="fa-solid fa-triangle-exclamation"></i><div><strong>${weak} Weak Passwords:</strong> Credentials with low entropy score. Upgrade with generator.</div></div>`;
+            }
+            if (dup > 0) {
+                alerts += `<div class="cyber-alert cyber-alert-warning mb-2"><i class="fa-solid fa-clone"></i><div><strong>${dup} Accounts Share Same Password:</strong> Reusing passwords increases breach impact.</div></div>`;
+            }
+            if (exp > 0) {
+                alerts += `<div class="cyber-alert cyber-alert-info mb-2"><i class="fa-solid fa-clock-rotate-left"></i><div><strong>${exp} Passwords Older than 90 Days:</strong> Industry standards recommend quarterly rotation.</div></div>`;
+            }
+            if (!alerts) {
+                alerts = `<div class="cyber-alert cyber-alert-success mb-0"><i class="fa-solid fa-circle-check"></i><div>Outstanding vault health! No security vulnerabilities detected.</div></div>`;
+            }
+            document.getElementById('hAudAlerts').innerHTML = alerts;
+        }
+
+        // Checker Logic
+        const chkInput = document.getElementById('chkPassInput');
+        chkInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            const res = SecurePassAnalyzer.analyze(val);
+
+            const segs = [document.getElementById('cSeg1'), document.getElementById('cSeg2'), document.getElementById('cSeg3'), document.getElementById('cSeg4')];
+            segs.forEach(s => { s.className = 'strength-bar-segment'; s.style.backgroundColor = ''; });
+            if (res.score > 0) {
+                const count = res.score >= 90 ? 4 : res.score >= 70 ? 3 : res.score >= 40 ? 2 : 1;
+                for (let i = 0; i < count; i++) segs[i].style.backgroundColor = res.colorHex;
+            }
+
+            const iconMap = { 'Very Strong': 'fa-shield-halved', 'Strong': 'fa-shield-check', 'Medium': 'fa-triangle-exclamation', 'Weak': 'fa-circle-exclamation', 'Empty': 'fa-circle-exclamation' };
+            const b = document.getElementById('chkBadge');
+            b.className = `badge-strength ${res.strengthLevel.toLowerCase().replace(' ', '-')}`;
+            b.innerHTML = `<i class="fa-solid ${iconMap[res.strengthLevel] || 'fa-shield-halved'} me-1"></i> ${res.strengthLevel}`;
+
+            const meter = document.getElementById('chkMeter');
+            const offset = 283 - (res.score / 100 * 283);
+            meter.style.strokeDashoffset = offset;
+            meter.style.stroke = res.colorHex;
+            document.getElementById('chkScoreNum').innerText = res.score;
+            document.getElementById('chkScoreUnit').innerText = res.strengthLevel;
+
+            document.getElementById('chkCrackTime').innerText = res.crackTimeFormatted;
+            document.getElementById('chkEntropy').innerText = `${res.entropyBits} bits`;
+
+            setRuleState('r-len', res.hasMinLength);
+            setRuleState('r-up', res.hasUppercase);
+            setRuleState('r-low', res.hasLowercase);
+            setRuleState('r-num', res.hasNumbers);
+            setRuleState('r-sym', res.hasSpecialChars);
+            setRuleState('r-rep', res.hasNoRepeatedChars);
+            setRuleState('r-seq', res.hasNoSequentialChars);
+            setRuleState('r-com', res.isNotCommon);
+
+            const sug = document.getElementById('chkSuggestions');
+            if (res.suggestions && res.suggestions.length > 0) {
+                sug.innerHTML = res.suggestions.map(s => `<div class="cyber-alert cyber-alert-${res.score >= 80 ? 'success' : res.score >= 50 ? 'warning' : 'danger'} mb-2"><i class="fa-solid ${res.score >= 80 ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i><div>${s}</div></div>`).join('');
+            } else {
+                sug.innerHTML = `<div class="cyber-alert cyber-alert-success mb-0"><i class="fa-solid fa-circle-check"></i><div>Excellent! Highly resistant to brute-force and dictionary attacks.</div></div>`;
+            }
+        });
+
+        function setRuleState(id, passed) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.className = passed ? 'rule-item passed' : 'rule-item';
+            el.querySelector('.rule-icon').innerHTML = passed ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-xmark"></i>';
+        }
+
+        function toggleCheckerEye() {
+            const isP = chkInput.type === 'password';
+            chkInput.type = isP ? 'text' : 'password';
+            document.querySelector('#chkEyeBtn i').className = isP ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        }
+
+        // Generator Logic
+        function doGeneratePass() {
+            const len = parseInt(document.getElementById('genSlider').value) || 16;
+            const pass = SecurePassGenerator.generate({
+                length: len,
+                includeUppercase: document.getElementById('gUpper').checked,
+                includeLowercase: document.getElementById('gLower').checked,
+                includeDigits: document.getElementById('gDigits').checked,
+                includeSpecial: document.getElementById('gSymbols').checked
+            });
+            document.getElementById('genDisplay').innerText = pass;
+        }
+
+        function copyGenPass() {
+            const p = document.getElementById('genDisplay').innerText;
+            if (p && p !== 'Click Generate') copyValue(p);
+        }
+
+        function saveGenToVault() {
+            const p = document.getElementById('genDisplay').innerText;
+            if (p && p !== 'Click Generate') openAddModal(p);
+        }
+
+        // On Load Init
         window.addEventListener('DOMContentLoaded', () => {
-            generateNewPassword();
-            renderVaultTable();
-            renderHealthAudit();
+            renderDashboard();
+            renderVaultViews();
+            renderFavorites();
+            renderCategories();
+            renderHealth();
+            doGeneratePass();
         });
     </script>
 </body>
