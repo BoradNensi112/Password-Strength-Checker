@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using SecurePass.Data;
 using SecurePass.Services;
@@ -52,6 +52,19 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+app.Use((context, next) =>
+{
+    if (context.Request.Headers.TryGetValue("X-Forwarded-Proto", out var proto) && proto == "https")
+    {
+        context.Request.Scheme = "https";
+    }
+    else if (context.Request.Host.Host.Contains("trycloudflare.com") || context.Request.Host.Host.Contains("loca.lt"))
+    {
+        context.Request.Scheme = "https";
+    }
+    return next();
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
