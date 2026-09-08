@@ -19,6 +19,13 @@
     <!-- Custom Cyber Stylesheets -->
     <link rel="stylesheet" href="wwwroot/css/cyber-theme.css" />
     <link rel="stylesheet" href="wwwroot/css/strength-meter.css" />
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('securepass_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
+    </script>
     <style>
         .view-section {
             display: none;
@@ -1331,8 +1338,34 @@
             reader.readAsText(input.files[0]);
         }
 
+        // Theme Functions for Static Deploy
+        function setAppTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            localStorage.setItem('securepass_theme', theme);
+            updateThemeToggleIcon(theme);
+        }
+
+        function toggleAppTheme() {
+            const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = cur === 'dark' ? 'light' : 'dark';
+            setAppTheme(next);
+        }
+
+        function updateThemeToggleIcon(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) {
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+                }
+            }
+        }
+
         // On Load Init
         window.addEventListener('DOMContentLoaded', () => {
+            const curTheme = localStorage.getItem('securepass_theme') || 'dark';
+            setAppTheme(curTheme);
             renderDashboard();
             renderVaultViews();
             renderFavorites();

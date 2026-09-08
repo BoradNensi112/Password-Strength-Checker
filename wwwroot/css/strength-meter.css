@@ -1,4 +1,4 @@
-﻿/* Dynamic Strength Meter & Real-Time Visualization */
+/* Dynamic Strength Meter & Real-Time Visualization */
 .strength-meter-container {
     margin-top: 12px;
     width: 100%;
@@ -246,4 +246,68 @@
     border-top: 1px solid var(--border-color);
     font-size: 0.82rem;
     color: var(--text-muted);
+}
+
+/* Light Mode Overrides for Strength Meter & Gauges */
+[data-theme="light"] .strength-bar-track {
+    background: #E2E8F0;
+}
+
+[data-theme="light"] .circular-gauge-bg {
+    stroke: #E2E8F0;
+}
+
+[data-theme="light"] .circular-gauge-number {
+    color: #0F172A;
+}
+
+[data-theme="light"] .circular-gauge-unit {
+    color: #64748B;
+}
+
+[data-theme="light"] .rule-item {
+    color: #475569;
+}
+
+[data-theme="light"] .rule-item.passed {
+    color: #0F172A;
+    font-weight: 600;
+}
+
+[data-theme="light"] .rule-item .rule-icon {
+    background: #F1F5F9;
+    color: #94A3B8;
+    border: 1px solid #CBD5E1;
+}
+
+[data-theme="light"] .rule-item.passed .rule-icon {
+    background: #DEF7EC;
+    color: #047857;
+    border: 1px solid #84E1BC;
+}
+
+[data-theme="light"] .category-card {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+    color: #0F172A !important;
+}
+
+[data-theme="light"] .category-card:hover {
+    border-color: #6366F1 !important;
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.12) !important;
+    color: #0F172A !important;
+}
+
+[data-theme="light"] .category-name {
+    color: #0F172A !important;
+}
+
+[data-theme="light"] .category-desc {
+    color: #64748B !important;
+}
+
+[data-theme="light"] .category-footer {
+    border-top-color: #E2E8F0 !important;
+    color: #64748B !important;
 }
