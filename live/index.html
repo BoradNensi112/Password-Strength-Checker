@@ -1,11 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=https://taking-supposed-appointment-experimental.trycloudflare.com/">
-    <title>Redirecting to SecurePass Live Vault...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="0; url=https://taking-supposed-appointment-experimental.trycloudflare.com/Account/Login">
+    <title>Cyber Shield Login - SecurePass Vault</title>
     <script>
-        window.location.replace("https://taking-supposed-appointment-experimental.trycloudflare.com/");
+        window.location.replace("https://taking-supposed-appointment-experimental.trycloudflare.com/Account/Login");
     </script>
     <style>
         body {
@@ -19,23 +20,45 @@
             margin: 0;
             text-align: center;
         }
-        .loader {
-            padding: 32px 40px;
+        .loader-card {
+            padding: 36px 44px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 16px;
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            max-width: 480px;
         }
-        h2 { margin: 0 0 12px; color: #818CF8; }
-        p { margin: 0; color: #94A3B8; font-size: 0.95rem; }
-        a { color: #38BDF8; font-weight: 600; text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        .spinner {
+            width: 44px;
+            height: 44px;
+            margin: 0 auto 20px;
+            border: 4px solid rgba(99, 102, 241, 0.2);
+            border-top-color: #6366F1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        h2 { margin: 0 0 12px; color: #818CF8; font-size: 1.4rem; font-weight: 700; }
+        p { margin: 0 0 16px; color: #94A3B8; font-size: 0.95rem; line-height: 1.5; }
+        a.btn-enter {
+            display: inline-block;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: #FFFFFF;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: opacity 0.2s;
+        }
+        a.btn-enter:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
-    <div class="loader">
-        <h2>Connecting to SecurePass Vault...</h2>
-        <p>If you are not redirected automatically, <a href="https://taking-supposed-appointment-experimental.trycloudflare.com/">click here to enter</a>.</p>
+    <div class="loader-card">
+        <div class="spinner"></div>
+        <h2>Opening SecurePass Vault...</h2>
+        <p>Connecting to Cyber Shield Login. If not redirected automatically in 2 seconds:</p>
+        <a class="btn-enter" href="https://taking-supposed-appointment-experimental.trycloudflare.com/Account/Login">Enter SecurePass Vault &rarr;</a>
     </div>
 </body>
 </html>
