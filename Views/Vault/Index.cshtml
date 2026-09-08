@@ -84,7 +84,7 @@
                         <th>Account Title</th>
                         <th>Website / Service</th>
                         <th>Username / Email</th>
-                        <th>Password</th>
+                        <th style="width: 195px; min-width: 195px;">Password</th>
                         <th>Strength</th>
                         <th>Score</th>
                         <th>Age / Expiry</th>
@@ -123,7 +123,7 @@
                             <td>
                                 <span class="cell-username-text small">@(item.Username ?? "—")</span>
                             </td>
-                            <td>
+                            <td class="password-col-cell">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="cell-masked-dots" id="pass-text-@item.Id">••••••••••••</span>
                                     <button type="button" class="btn btn-sm btn-link text-primary p-0" title="Reveal Password" onclick="revealPass(@item.Id, this)">
@@ -144,7 +144,7 @@
                                 else if (item.PasswordStrength == "Strong")
                                 {
                                     <span class="badge-strength strong">
-                                        <i class="fa-solid fa-shield-check me-1"></i> Strong
+                                        <i class="fa-solid fa-shield-halved me-1"></i> Strong
                                     </span>
                                 }
                                 else if (item.PasswordStrength == "Medium")

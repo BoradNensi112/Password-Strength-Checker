@@ -39,7 +39,7 @@
                 <div class="stat-value text-success">@(Model.StrongPasswords + Model.VeryStrongPasswords)</div>
             </div>
             <div class="stat-icon green">
-                <i class="fa-solid fa-shield-check"></i>
+                <i class="fa-solid fa-shield-halved"></i>
             </div>
         </div>
     </div>
@@ -209,7 +209,7 @@
                                 else if (item.PasswordStrength == "Strong")
                                 {
                                     <span class="badge-strength strong">
-                                        <i class="fa-solid fa-shield-check me-1"></i> Strong
+                                        <i class="fa-solid fa-shield-halved me-1"></i> Strong
                                     </span>
                                 }
                                 else if (item.PasswordStrength == "Medium")
@@ -316,7 +316,6 @@
                 </div>
             }
         </div>
-    }
     }
     else
     {

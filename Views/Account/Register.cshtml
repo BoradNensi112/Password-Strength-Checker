@@ -1,4 +1,4 @@
-﻿@model SecurePass.Models.ViewModels.RegisterViewModel
+@model SecurePass.Models.ViewModels.RegisterViewModel
 @{
     ViewData["Title"] = "Create Secure Vault Account";
     Layout = "_AuthLayout";
@@ -76,7 +76,7 @@
                 <div class="col-md-6 cyber-form-group mb-2">
                     <label asp-for="ConfirmPassword" class="cyber-label">Confirm Password</label>
                     <div class="input-with-icon">
-                        <i class="fa-solid fa-shield-check input-icon"></i>
+                        <i class="fa-solid fa-shield-halved input-icon"></i>
                         <input asp-for="ConfirmPassword" type="password" class="cyber-input" placeholder="Repeat master password" />
                     </div>
                     <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
