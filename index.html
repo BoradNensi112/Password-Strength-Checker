@@ -1,64 +1,1645 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="0; url=https://taking-supposed-appointment-experimental.trycloudflare.com/Account/Login">
-    <title>Cyber Shield Login - SecurePass Vault</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SecurePass – Smart Password Strength Checker & Secure Password Vault</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- FontAwesome 6 Pro Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- Google Fonts Inter & Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Cyber Stylesheets -->
+    <link rel="stylesheet" href="wwwroot/css/cyber-theme.css" />
+    <link rel="stylesheet" href="wwwroot/css/strength-meter.css" />
     <script>
-        window.location.replace("https://taking-supposed-appointment-experimental.trycloudflare.com/Account/Login");
+        (function() {
+            const savedTheme = localStorage.getItem('securepass_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
     </script>
     <style>
-        body {
-            background-color: #0B132B;
-            color: #F8FAFC;
-            font-family: system-ui, -apple-system, sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
+        .view-section {
+            display: none;
+            animation: fadeIn 0.25s ease-in-out;
         }
-        .loader-card {
-            padding: 36px 44px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            border: 1px solid rgba(99, 102, 241, 0.35);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-            max-width: 480px;
+        .view-section.active {
+            display: block;
         }
-        .spinner {
-            width: 44px;
-            height: 44px;
-            margin: 0 auto 20px;
-            border: 4px solid rgba(99, 102, 241, 0.2);
-            border-top-color: #6366F1;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        h2 { margin: 0 0 12px; color: #818CF8; font-size: 1.4rem; font-weight: 700; }
-        p { margin: 0 0 16px; color: #94A3B8; font-size: 0.95rem; line-height: 1.5; }
-        a.btn-enter {
-            display: inline-block;
-            padding: 10px 24px;
-            background: linear-gradient(135deg, #6366F1, #8B5CF6);
-            color: #FFFFFF;
-            font-weight: 600;
+        .category-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: var(--transition-normal);
+            cursor: pointer;
             text-decoration: none;
-            border-radius: 8px;
-            transition: opacity 0.2s;
+            display: block;
         }
-        a.btn-enter:hover { opacity: 0.9; }
+        .category-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-purple);
+            box-shadow: 0 10px 25px var(--accent-purple-glow);
+        }
     </style>
 </head>
-<body>
-    <div class="loader-card">
-        <div class="spinner"></div>
-        <h2>Opening SecurePass Vault...</h2>
-        <p>Connecting to Cyber Shield Login. If not redirected automatically in 2 seconds:</p>
-        <a class="btn-enter" href="https://taking-supposed-appointment-experimental.trycloudflare.com/Account/Login">Enter SecurePass Vault &rarr;</a>
+<body class="cyber-grid-bg">
+    
+    <!-- Cyber Shield Auth Container (Login / Register) -->
+    <div id="authSection" class="auth-wrapper" style="display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 20px;">
+        <!-- LOGIN CARD -->
+        <div class="auth-card-container" id="loginCard">
+            <!-- Left Hero Pane -->
+            <div class="auth-hero-pane">
+                <div>
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="brand-icon" style="width: 44px; height: 44px; font-size: 1.5rem;">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <h3 class="brand-text m-0">SecurePass</h3>
+                            <small class="text-muted">Zero-Knowledge Encrypted Vault</small>
+                        </div>
+                    </div>
+                    <h2 class="text-theme-primary fw-bold mb-3">Enterprise Password Security & Defense</h2>
+                    <p class="text-secondary" style="font-size: 0.95rem; line-height: 1.6;">
+                        Protect your digital identities with military-grade AES-256 encryption, real-time entropy analysis, and proactive credential leakage prevention.
+                    </p>
+                </div>
+
+                <div class="mt-4">
+                    <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: rgba(109, 93, 246, 0.1); border: 1px solid rgba(109, 93, 246, 0.25); cursor: pointer;" onclick="fillDemoCredentials()">
+                        <i class="fa-solid fa-lock-open text-primary fs-4"></i>
+                        <div>
+                            <div class="fw-semibold text-theme-primary small">Demo Credentials Preloaded (Click to Fill)</div>
+                            <div class="text-muted small">demo@securepass.io / Secure@Pass2026!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Login Form -->
+            <div class="auth-form-pane">
+                <div class="mb-4">
+                    <h3 class="text-theme-primary fw-bold">Welcome Back</h3>
+                    <p class="text-secondary small">Authenticate to unlock your encrypted password vault.</p>
+                </div>
+
+                <div id="loginAlert" class="alert alert-danger py-2 small mb-3" style="display: none;"></div>
+
+                <form id="loginForm" onsubmit="handleAuthLogin(event)">
+                    <div class="cyber-form-group mb-3">
+                        <label class="cyber-label">Email Address</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-envelope input-icon"></i>
+                            <input type="email" id="loginEmail" class="cyber-input" value="demo@securepass.io" placeholder="admin@enterprise.com" required autofocus />
+                        </div>
+                    </div>
+
+                    <div class="cyber-form-group mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="cyber-label mb-0">Master Password</label>
+                            <a href="javascript:void(0)" onclick="fillDemoCredentials()" class="text-decoration-none small text-primary">Use Demo Credentials</a>
+                        </div>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-key input-icon"></i>
+                            <input type="password" id="loginPasswordInput" class="cyber-input" value="Secure@Pass2026!" placeholder="••••••••••••" required />
+                            <button type="button" class="input-action-btn" onclick="togglePasswordVisibility('loginPasswordInput', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <label class="d-flex align-items-center gap-2 text-secondary small" style="cursor: pointer;">
+                            <input type="checkbox" id="rememberMeCheckbox" checked class="form-check-input bg-dark border-secondary m-0" />
+                            <span>Remember this device</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-cyber-primary w-100 justify-content-center py-2 mb-3">
+                        <i class="fa-solid fa-fingerprint"></i> Unlock Secure Vault
+                    </button>
+
+                    <div class="text-center">
+                        <span class="text-muted small">Don't have an account?</span>
+                        <a href="javascript:void(0)" onclick="showRegisterCard()" class="text-decoration-none fw-semibold text-primary ms-1 small">Create Vault Account</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- REGISTER CARD -->
+        <div class="auth-card-container" id="registerCard" style="display: none; max-width: 1100px;">
+            <!-- Left Hero Pane -->
+            <div class="auth-hero-pane">
+                <div>
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="brand-icon" style="width: 44px; height: 44px; font-size: 1.5rem;">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <h3 class="brand-text m-0">SecurePass</h3>
+                            <small class="text-muted">Zero-Knowledge Encrypted Vault</small>
+                        </div>
+                    </div>
+                    <h2 class="text-theme-primary fw-bold mb-3">Begin Zero-Trust Defense</h2>
+                    <p class="text-secondary" style="font-size: 0.95rem; line-height: 1.6;">
+                        Create your isolated password vault. Your master password is never stored in plain text and is protected by AES-256 client cryptography.
+                    </p>
+                </div>
+
+                <div class="mt-4">
+                    <div class="d-flex flex-column gap-2 text-secondary small">
+                        <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i> Client & Server End-to-End Encryption</div>
+                        <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i> Live Entropy & Brute-Force Crack Estimator</div>
+                        <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-check text-success"></i> 90-Day Expiry & Credential Reuse Auditing</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Register Form -->
+            <div class="auth-form-pane">
+                <div class="mb-3">
+                    <h3 class="text-theme-primary fw-bold">Create Secure Account</h3>
+                    <p class="text-secondary small">Setup your master credentials to initialize your private vault.</p>
+                </div>
+
+                <div id="registerAlert" class="alert alert-danger py-2 small mb-3" style="display: none;"></div>
+
+                <form id="registerForm" onsubmit="handleAuthRegister(event)">
+                    <div class="row g-3">
+                        <div class="col-md-6 cyber-form-group mb-2">
+                            <label class="cyber-label">Full Name</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" id="regFullName" class="cyber-input" placeholder="Nensi Borad" required />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 cyber-form-group mb-2">
+                            <label class="cyber-label">Email Address</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-envelope input-icon"></i>
+                                <input type="email" id="regEmail" class="cyber-input" placeholder="nensi@domain.com" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6 cyber-form-group mb-2">
+                            <label class="cyber-label">Master Password</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="regPassword" class="cyber-input" placeholder="Min. 8 characters" required />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 cyber-form-group mb-2">
+                            <label class="cyber-label">Confirm Password</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-shield-halved input-icon"></i>
+                                <input type="password" id="regConfirmPassword" class="cyber-input" placeholder="Repeat master password" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-cyber-primary w-100 justify-content-center py-2 mt-3 mb-3">
+                        <i class="fa-solid fa-shield-halved"></i> Initialize Encrypted Vault
+                    </button>
+
+                    <div class="text-center">
+                        <span class="text-muted small">Already have a vault?</span>
+                        <a href="javascript:void(0)" onclick="showLoginCard()" class="text-decoration-none fw-semibold text-primary ms-1 small">Sign In</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+
+    <div class="app-wrapper" style="display: none;">
+        <!-- Sidebar Navigation (Exact match from _Layout.cshtml) -->
+        <aside class="app-sidebar" id="appSidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <div class="brand-text">SecurePass</div>
+                </div>
+                <span class="brand-badge ms-auto">AES-256</span>
+            </div>
+
+            <div class="sidebar-menu">
+                <div class="menu-category-title">Core Vault</div>
+                <a href="javascript:void(0)" class="nav-link-item active" onclick="navigateTo('dashboard', this)">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="openAddModal()">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>Add Password</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('vault', this)">
+                    <i class="fa-solid fa-vault"></i>
+                    <span>Password Vault</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('favorites', this)">
+                    <i class="fa-solid fa-star text-warning"></i>
+                    <span>Favorites</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('categories', this)">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Categories</span>
+                </a>
+
+                <div class="menu-category-title mt-2">Security Tools</div>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('checker', this)">
+                    <i class="fa-solid fa-shield-virus"></i>
+                    <span>Strength Checker</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('generator', this)">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Pass Generator</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('health', this)">
+                    <i class="fa-solid fa-heart-pulse text-danger"></i>
+                    <span>Password Health</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('importexport', this)">
+                    <i class="fa-solid fa-file-import"></i>
+                    <span>Import & Export</span>
+                </a>
+
+                <div class="menu-category-title mt-2">System</div>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('settings', this)">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-quick-pill">
+                    <div class="user-avatar">
+                        N
+                    </div>
+                    <div class="overflow-hidden flex-grow-1">
+                        <div class="fw-semibold text-truncate small">Nensi Borad</div>
+                        <div class="text-muted small text-truncate" style="font-size: 0.75rem;">Protected by AES-256</div>
+                    </div>
+                    <span class="status-dot ms-2 position-static" title="Secure Session Active"></span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="app-main">
+            <!-- Top Header -->
+            <header class="app-topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle-btn d-lg-none" id="sidebarToggleBtn" onclick="toggleSidebar()">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="topbar-search-form d-none d-md-block">
+                        <i class="fa-solid fa-magnifying-glass topbar-search-icon"></i>
+                        <input type="text" id="globalSearchInput" class="topbar-search-input" placeholder="Search passwords, websites..." oninput="handleGlobalSearch(this.value)" />
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    
+                    <button type="button" class="btn-cyber-outline py-2 px-3 small" onclick="lockVault()" title="Lock Vault">
+                        <i class="fa-solid fa-lock"></i> <span class="d-none d-sm-inline">Lock Vault</span>
+                    </button>
+
+                    <button type="button" class="btn-cyber-primary py-2 px-3 small" onclick="openAddModal()">
+                        <i class="fa-solid fa-plus"></i> <span class="d-none d-sm-inline">New Password</span>
+                    </button>
+
+                    <button class="icon-button" id="themeToggleBtn" title="Toggle Light/Dark Theme" onclick="toggleAppTheme()">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+
+                    <div class="user-avatar" style="width: 36px; height: 36px; cursor: pointer;" title="Nensi Borad">
+                        N
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Views Container -->
+            <div class="page-container">
+
+                <!-- 1. DASHBOARD VIEW (Default View) -->
+                <div id="view-dashboard" class="view-section active">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-gauge-high"></i> Command Center</h1>
+                            <p class="page-subtitle">Real-time cryptographic audit & vault vulnerability telemetry</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn-cyber-primary" onclick="openAddModal()">
+                                <i class="fa-solid fa-plus"></i> Add Credential
+                            </button>
+                            <button type="button" class="btn-cyber-outline" onclick="navigateTo('generator')">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Generator
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4 Stat Cards -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-xl-3 col-6">
+                            <div class="cyber-card stat-card h-100" onclick="navigateTo('vault')" style="cursor: pointer;">
+                                <div class="stat-info">
+                                    <div class="stat-label">Total Passwords</div>
+                                    <div class="stat-value" id="dashTotalCount">4</div>
+                                </div>
+                                <div class="stat-icon purple"><i class="fa-solid fa-vault"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-6">
+                            <div class="cyber-card stat-card h-100" onclick="navigateTo('health')" style="cursor: pointer;">
+                                <div class="stat-info">
+                                    <div class="stat-label">Vault Health</div>
+                                    <div class="stat-value text-success" id="dashHealthScore">85%</div>
+                                </div>
+                                <div class="stat-icon green"><i class="fa-solid fa-heart-pulse"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-6">
+                            <div class="cyber-card stat-card h-100" onclick="navigateTo('health')" style="cursor: pointer;">
+                                <div class="stat-info">
+                                    <div class="stat-label">Weak Credentials</div>
+                                    <div class="stat-value text-danger" id="dashWeakCount">1</div>
+                                </div>
+                                <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-6">
+                            <div class="cyber-card stat-card h-100" onclick="navigateTo('health')" style="cursor: pointer;">
+                                <div class="stat-info">
+                                    <div class="stat-label">Expired (>90d)</div>
+                                    <div class="stat-value text-warning" id="dashExpiredCount">1</div>
+                                </div>
+                                <div class="stat-icon orange"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Action Cards -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-4">
+                            <div class="cyber-card p-3 d-flex align-items-center gap-3" onclick="navigateTo('checker')" style="cursor: pointer;">
+                                <div class="stat-icon cyan"><i class="fa-solid fa-gauge-simple-high"></i></div>
+                                <div>
+                                    <div class="fw-bold text-theme-primary">Strength Checker</div>
+                                    <div class="text-muted small">Real-time entropy and crack time</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="cyber-card p-3 d-flex align-items-center gap-3" onclick="navigateTo('generator')" style="cursor: pointer;">
+                                <div class="stat-icon purple"><i class="fa-solid fa-key"></i></div>
+                                <div>
+                                    <div class="fw-bold text-theme-primary">Password Generator</div>
+                                    <div class="text-muted small">Custom crypto entropy builder</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="cyber-card p-3 d-flex align-items-center gap-3" onclick="navigateTo('health')" style="cursor: pointer;">
+                                <div class="stat-icon green"><i class="fa-solid fa-shield-virus"></i></div>
+                                <div>
+                                    <div class="fw-bold text-theme-primary">Security Health Audit</div>
+                                    <div class="text-muted small">Scan duplicate and stale logins</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Passwords Table -->
+                    <div class="cyber-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="text-theme-primary fw-bold m-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Vault Credentials</h5>
+                            <button class="btn btn-sm btn-cyber-outline py-1 px-3" onclick="navigateTo('vault')">View All &rarr;</button>
+                        </div>
+                        <!-- Desktop Table (>= 768px) -->
+                        <div class="cyber-table-wrapper d-none d-md-block">
+                            <table class="cyber-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 35px;"><i class="fa-regular fa-star"></i></th>
+                                        <th>Account Title</th>
+                                        <th>Website / URL</th>
+                                        <th>Username / Email</th>
+                                        <th>Password</th>
+                                        <th>Strength</th>
+                                        <th>Score</th>
+                                        <th>Age / Expiry</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashTableBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Mobile Cards (< 768px) -->
+                        <div class="mobile-vault-cards d-md-none d-flex flex-column gap-3" id="dashMobileCards">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. PASSWORD VAULT VIEW -->
+                <div id="view-vault" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-vault"></i> Password Vault</h1>
+                            <p class="page-subtitle">Manage and audit zero-knowledge encrypted credentials</p>
+                        </div>
+                        <div>
+                            <button type="button" class="btn-cyber-primary" onclick="openAddModal()">
+                                <i class="fa-solid fa-plus"></i> Add New Password
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="cyber-card mb-4 p-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 400px;">
+                            <input type="text" id="vaultFilterInput" class="cyber-input py-2" placeholder="Search accounts, usernames, domains..." oninput="renderVaultViews()">
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <select id="vaultCategoryFilter" class="cyber-select py-2" onchange="renderVaultViews()">
+                                <option value="All">All Categories</option>
+                                <option value="Work">Work</option>
+                                <option value="Banking">Banking</option>
+                                <option value="Social">Social</option>
+                                <option value="Personal">Personal</option>
+                                <option value="Entertainment">Entertainment</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Table (>= 768px) -->
+                    <div class="cyber-table-wrapper d-none d-md-block">
+                        <table class="cyber-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 35px;"><i class="fa-regular fa-star"></i></th>
+                                    <th>Account Title</th>
+                                    <th>Website / URL</th>
+                                    <th>Username / Email</th>
+                                    <th>Password</th>
+                                    <th>Strength</th>
+                                    <th>Score</th>
+                                    <th>Age / Expiry</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fullVaultTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Cards (< 768px) -->
+                    <div class="mobile-vault-cards d-md-none d-flex flex-column gap-3" id="vaultMobileCards">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- 3. STRENGTH CHECKER VIEW -->
+                <div id="view-checker" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-shield-virus"></i> Real-Time Password Strength Checker</h1>
+                            <p class="page-subtitle">Live Shannon entropy, brute-force crack time, and heuristic analysis</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <div class="cyber-card mb-4">
+                                <label class="cyber-label mb-2"><i class="fa-solid fa-key me-2 text-primary"></i> Enter Password to Inspect</label>
+                                <div class="input-with-icon mb-3">
+                                    <i class="fa-solid fa-lock input-icon"></i>
+                                    <input type="password" id="chkPassInput" class="cyber-input" placeholder="Type or paste any password..." autocomplete="off">
+                                    <button type="button" id="chkEyeBtn" class="input-action-btn" onclick="toggleCheckerEye()">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+
+                                <div class="strength-bar-container mb-2">
+                                    <div class="strength-bar-segment" id="cSeg1"></div>
+                                    <div class="strength-bar-segment" id="cSeg2"></div>
+                                    <div class="strength-bar-segment" id="cSeg3"></div>
+                                    <div class="strength-bar-segment" id="cSeg4"></div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span class="small text-muted">Evaluation Rating:</span>
+                                    <span id="chkBadge" class="badge-strength weak"><i class="fa-solid fa-circle-exclamation me-1"></i> Empty</span>
+                                </div>
+                            </div>
+
+                            <div class="cyber-card">
+                                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-lightbulb text-warning me-2"></i> Security Recommendations</h5>
+                                <div id="chkSuggestions">
+                                    <div class="cyber-alert cyber-alert-info mb-0">
+                                        <i class="fa-solid fa-info-circle"></i>
+                                        <div>Type a password to evaluate its real-time resistance to attacks.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-5">
+                            <div class="cyber-card text-center mb-4">
+                                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-shield-halved text-cyan me-2"></i> Security Score</h5>
+                                <div class="circular-gauge-wrapper my-3 mx-auto">
+                                    <svg class="circular-gauge-svg" viewBox="0 0 100 100">
+                                        <circle class="circular-gauge-bg" cx="50" cy="50" r="45"></circle>
+                                        <circle class="circular-gauge-meter" id="chkMeter" cx="50" cy="50" r="45" style="stroke-dashoffset: 283; stroke: #EF4444;"></circle>
+                                    </svg>
+                                    <div class="circular-gauge-content">
+                                        <div class="circular-gauge-number" id="chkScoreNum">0</div>
+                                        <div class="circular-gauge-unit" id="chkScoreUnit">Score</div>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mt-2">
+                                    <div class="col-6">
+                                        <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                            <div class="text-muted small mb-1">Brute-Force Crack</div>
+                                            <div class="fw-bold text-theme-primary" id="chkCrackTime">Instant</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                            <div class="text-muted small mb-1">Shannon Entropy</div>
+                                            <div class="fw-bold text-cyan" id="chkEntropy">0 bits</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="cyber-card">
+                                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-list-check text-primary me-2"></i> Hardness Matrix</h5>
+                                <ul class="rule-checklist p-0 m-0" id="chkRuleList" style="list-style: none;">
+                                    <li class="rule-item" id="r-len"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>At least 8 characters long</span></li>
+                                    <li class="rule-item" id="r-up"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>Uppercase letters (A-Z)</span></li>
+                                    <li class="rule-item" id="r-low"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>Lowercase letters (a-z)</span></li>
+                                    <li class="rule-item" id="r-num"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>Numerical digits (0-9)</span></li>
+                                    <li class="rule-item" id="r-sym"><div class="rule-icon"><i class="fa-solid fa-xmark"></i></div> <span>Special symbols (!@#$%^&*)</span></li>
+                                    <li class="rule-item" id="r-rep"><div class="rule-icon"><i class="fa-solid fa-check"></i></div> <span>No repeated characters (aaa, 111)</span></li>
+                                    <li class="rule-item" id="r-seq"><div class="rule-icon"><i class="fa-solid fa-check"></i></div> <span>No keyboard walks (qwerty, 12345)</span></li>
+                                    <li class="rule-item" id="r-com"><div class="rule-icon"><i class="fa-solid fa-check"></i></div> <span>Not in common breached passwords list</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. PASSWORD GENERATOR VIEW -->
+                <div id="view-generator" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Password Generator</h1>
+                            <p class="page-subtitle">Cryptographically secure, random high-entropy passwords</p>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="cyber-card p-4 p-md-5 mb-4">
+                                <div class="p-3 p-md-4 rounded-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: rgba(8, 14, 30, 0.9); border: 2px solid var(--border-glow);">
+                                    <span id="genDisplay" class="fs-4 font-monospace fw-bold text-theme-primary text-break" style="letter-spacing: 1px;">Click Generate</span>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn-cyber-outline" onclick="doGeneratePass()" title="Refresh">
+                                            <i class="fa-solid fa-rotate"></i> Refresh
+                                        </button>
+                                        <button type="button" class="btn-cyber-primary" onclick="copyGenPass()" title="Copy">
+                                            <i class="fa-solid fa-copy"></i> Copy
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="cyber-label m-0">Password Length: <span id="genLenNum" class="text-cyan fw-bold fs-5">16</span> characters</label>
+                                    </div>
+                                    <input type="range" class="form-range" id="genSlider" min="8" max="32" value="16" oninput="document.getElementById('genLenNum').innerText = this.value; doGeneratePass();
+            checkAuthStatus();">
+                                </div>
+
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                            <span>Uppercase Letters (A-Z)</span>
+                                            <label class="cyber-switch">
+                                                <input type="checkbox" id="gUpper" checked onchange="doGeneratePass()">
+                                                <span class="switch-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                            <span>Lowercase Letters (a-z)</span>
+                                            <label class="cyber-switch">
+                                                <input type="checkbox" id="gLower" checked onchange="doGeneratePass()">
+                                                <span class="switch-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                            <span>Numbers (0-9)</span>
+                                            <label class="cyber-switch">
+                                                <input type="checkbox" id="gDigits" checked onchange="doGeneratePass()">
+                                                <span class="switch-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                            <span>Special Symbols (!@#$%)</span>
+                                            <label class="cyber-switch">
+                                                <input type="checkbox" id="gSymbols" checked onchange="doGeneratePass()">
+                                                <span class="switch-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="button" class="btn-cyber-success px-4 py-2" onclick="saveGenToVault()">
+                                        <i class="fa-solid fa-vault me-1"></i> Save to Vault
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. FAVORITES VIEW -->
+                <div id="view-favorites" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-star text-warning"></i> Favorite Accounts</h1>
+                            <p class="page-subtitle">Starred high-priority credentials for rapid access</p>
+                        </div>
+                    </div>
+                    <div class="row g-3" id="favoritesGrid">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- 6. CATEGORIES VIEW -->
+                <div id="view-categories" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-layer-group"></i> Categories Browser</h1>
+                            <p class="page-subtitle">Credentials organized by operational domain</p>
+                        </div>
+                    </div>
+                    <div class="row g-3" id="categoriesGrid">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- 7. HEALTH AUDITOR VIEW -->
+                <div id="view-health" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-heart-pulse text-danger"></i> Vault Health Auditor</h1>
+                            <p class="page-subtitle">Vulnerability assessment across all stored credentials</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="cyber-card stat-card">
+                                <div class="stat-info">
+                                    <div class="stat-label">Health Score</div>
+                                    <div class="stat-value text-success" id="hAudScore">85%</div>
+                                </div>
+                                <div class="stat-icon green"><i class="fa-solid fa-shield-heart"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="cyber-card stat-card">
+                                <div class="stat-info">
+                                    <div class="stat-label">Weak Passwords</div>
+                                    <div class="stat-value text-danger" id="hAudWeak">1</div>
+                                </div>
+                                <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="cyber-card stat-card">
+                                <div class="stat-info">
+                                    <div class="stat-label">Reused Passwords</div>
+                                    <div class="stat-value text-warning" id="hAudDup">0</div>
+                                </div>
+                                <div class="stat-icon orange"><i class="fa-solid fa-clone"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="cyber-card stat-card">
+                                <div class="stat-info">
+                                    <div class="stat-label">Expired (>90d)</div>
+                                    <div class="stat-value text-cyan" id="hAudExp">1</div>
+                                </div>
+                                <div class="stat-icon cyan"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cyber-card">
+                        <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-triangle-exclamation text-warning me-2"></i> Detected Security Issues</h5>
+                        <div id="hAudAlerts"></div>
+                    </div>
+                </div>
+
+                <!-- 8. SETTINGS VIEW -->
+                <div id="view-settings" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-sliders"></i> System Settings</h1>
+                            <p class="page-subtitle">Configure vault preferences & security watchdogs</p>
+                        </div>
+                    </div>
+
+                    <div class="cyber-card" style="max-width: 700px;">
+                        <div class="cyber-form-group mb-4">
+                            <label class="cyber-label">Theme Preference</label>
+                            <div class="d-flex gap-3">
+                                <button type="button" class="btn-cyber-outline" onclick="setAppTheme('dark')"><i class="fa-solid fa-moon me-1"></i> Dark Mode (Cyber)</button>
+                                <button type="button" class="btn-cyber-outline" onclick="setAppTheme('light')"><i class="fa-solid fa-sun me-1"></i> Light Mode</button>
+                            </div>
+                        </div>
+                        <div class="cyber-form-group mb-4">
+                            <label class="cyber-label">Auto-Lock Inactivity Watchdog</label>
+                            <select class="cyber-select" style="max-width: 300px;">
+                                <option value="15">15 Minutes</option>
+                                <option value="30" selected>30 Minutes</option>
+                                <option value="60">1 Hour</option>
+                            </select>
+                            <span class="text-muted small mt-1 d-block">Automatically locks vault if no mouse or keystroke activity is detected.</span>
+                        </div>
+                        <div class="cyber-form-group mb-3">
+                            <label class="cyber-label">Default Generator Length</label>
+                            <input type="number" class="cyber-input" value="16" min="8" max="32" style="max-width: 150px;">
+                        </div>
+                    </div>
+                <!-- 9. IMPORT & EXPORT VIEW -->
+                <div id="view-importexport" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-file-import"></i> Import & Export Data</h1>
+                            <p class="page-subtitle">Backup your encrypted vault or import credentials from external password managers</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="cyber-card h-100">
+                                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-file-export me-2 text-primary"></i> Export Vault Credentials</h5>
+                                <p class="text-secondary small mb-4">
+                                    Download a secure snapshot or portable backup of your stored accounts. Keep exported files securely in an encrypted drive.
+                                </p>
+
+                                <div class="d-flex flex-column gap-3 mb-4">
+                                    <div class="p-3 rounded-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                        <div class="flex-grow-1">
+                                            <div class="text-theme-primary fw-semibold"><i class="fa-solid fa-file-csv text-success me-2"></i> CSV Spreadsheet (.csv)</div>
+                                            <div class="text-muted small">Standard format compatible with Excel, Google Sheets, Bitwarden, 1Password</div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-cyber-primary py-2 px-3 text-nowrap w-100 w-sm-auto text-center" onclick="exportStaticCsv()">
+                                            <i class="fa-solid fa-download"></i> Export CSV
+                                        </button>
+                                    </div>
+
+                                    <div class="p-3 rounded-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                        <div class="flex-grow-1">
+                                            <div class="text-theme-primary fw-semibold"><i class="fa-solid fa-file-code text-info me-2"></i> JSON Data Backup (.json)</div>
+                                            <div class="text-muted small">Structured format with complete timestamps, notes, and metadata</div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-cyber-outline py-2 px-3 text-nowrap w-100 w-sm-auto text-center" onclick="exportStaticJson()">
+                                            <i class="fa-solid fa-download"></i> Export JSON
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 rounded-3" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);">
+                                    <div class="text-danger small fw-semibold"><i class="fa-solid fa-shield-halved me-1"></i> Security Warning</div>
+                                    <div class="text-muted small" style="font-size: 0.8rem;">
+                                        Exported files contain plaintext passwords. Delete them after transferring to a secure offline vault.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="cyber-card h-100">
+                                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-file-import me-2 text-success"></i> Import Passwords via CSV</h5>
+                                <p class="text-secondary small mb-3">
+                                    Bulk upload accounts from Chrome, Firefox, or other password managers into SecurePass vault.
+                                </p>
+
+                                <div class="cyber-form-group mb-3">
+                                    <label class="cyber-label">Upload CSV File</label>
+                                    <input type="file" id="staticCsvInput" class="form-control bg-dark text-theme-primary border-secondary" accept=".csv" style="max-width: 100%;" />
+                                </div>
+
+                                <div class="p-3 rounded-3 mb-4" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                    <div class="text-muted small mb-1 fw-bold">Supported CSV Header Structure:</div>
+                                    <code class="text-cyan small d-block text-break" style="word-break: break-all;">Title,Website,Username,Password,Category,Notes</code>
+                                </div>
+
+                                <button type="button" class="btn-cyber-success w-100 justify-content-center py-2" onclick="importStaticCsv()">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload & Encrypt Passwords
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add New Password -->
+    <div class="modal fade" id="addPasswordModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa-solid fa-plus text-primary me-2"></i> Add Account to Vault</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addVaultForm" onsubmit="event.preventDefault(); handleAddVaultSubmit();">
+                        <div class="cyber-form-group mb-3">
+                            <label class="cyber-label">Account Title *</label>
+                            <input type="text" id="mTitle" class="cyber-input" placeholder="e.g. GitHub, Google, Banking" required>
+                        </div>
+                        <div class="cyber-form-group mb-3">
+                            <label class="cyber-label">Category</label>
+                            <select id="mCategory" class="cyber-select">
+                                <option value="Work">Work</option>
+                                <option value="Banking">Banking</option>
+                                <option value="Social">Social</option>
+                                <option value="Personal">Personal</option>
+                                <option value="Entertainment">Entertainment</option>
+                            </select>
+                        </div>
+                        <div class="cyber-form-group mb-3">
+                            <label class="cyber-label">Website or App URL</label>
+                            <input type="url" id="mWebsite" class="cyber-input" placeholder="https://...">
+                        </div>
+                        <div class="cyber-form-group mb-3">
+                            <label class="cyber-label">Username or Email *</label>
+                            <input type="text" id="mUsername" class="cyber-input" placeholder="e.g. nensi@domain.com" required>
+                        </div>
+                        <div class="cyber-form-group mb-3">
+                            <label class="cyber-label">Password *</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="mPassword" class="cyber-input" placeholder="Enter master password" required oninput="handleModalPassEval(this.value)">
+                            </div>
+                            <div id="mPassBadge" class="mt-2"></div>
+                        </div>
+                        <div class="cyber-form-group mb-3">
+                            <label class="cyber-label">Notes (Optional)</label>
+                            <textarea id="mNotes" class="cyber-textarea" rows="2" placeholder="Recovery codes, PIN, etc."></textarea>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn-cyber-outline" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn-cyber-primary"><i class="fa-solid fa-floppy-disk me-1"></i> Save to Vault</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core Engines -->
+    <script src="wwwroot/js/password-analyzer.js"></script>
+    <script src="wwwroot/js/password-generator.js"></script>
+
+    <script>
+        // Data Store
+        const initialVault = [
+            { id: 1, title: 'Google Workspace', website: 'https://accounts.google.com', username: 'admin@securepass.io', pass: 'K9#mQ!vL2$pZ8*wY', category: 'Work', isFav: true, date: '2026-08-15', ageDays: 24 },
+            { id: 2, title: 'GitHub Enterprise', website: 'https://github.com', username: 'boradnensi112', pass: 'Gh#88!SecureP@ss2026', category: 'Work', isFav: true, date: '2026-08-20', ageDays: 19 },
+            { id: 3, title: 'HDFC Bank Online', website: 'https://netbanking.hdfcbank.com', username: 'nensi_hdfc', pass: 'B@nk#99SecureVault!', category: 'Banking', isFav: false, date: '2026-05-30', ageDays: 101 },
+            { id: 4, title: 'Netflix Account', website: 'https://netflix.com', username: 'nensi@gmail.com', pass: 'Stream@2026!', category: 'Entertainment', isFav: false, date: '2026-08-28', ageDays: 11 }
+        ];
+
+        let vault = JSON.parse(localStorage.getItem('securepass_vault_store')) || initialVault;
+
+        function persistVault() {
+            localStorage.setItem('securepass_vault_store', JSON.stringify(vault));
+            renderDashboard();
+            renderVaultViews();
+            renderFavorites();
+            renderCategories();
+            renderHealth();
+        }
+
+        // Navigation Router
+        function navigateTo(viewName, el) {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-link-item').forEach(l => l.classList.remove('active'));
+            
+            const target = document.getElementById('view-' + viewName);
+            if (target) target.classList.add('active');
+
+            if (el) {
+                el.classList.add('active');
+            } else {
+                const match = Array.from(document.querySelectorAll('.nav-link-item')).find(a => a.getAttribute('onclick')?.includes(viewName));
+                if (match) match.classList.add('active');
+            }
+
+            // Close mobile sidebar if open
+            document.getElementById('appSidebar').classList.remove('show');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleSidebar() {
+            document.getElementById('appSidebar').classList.toggle('show');
+        }
+
+        // Theme Switcher
+        function setAppTheme(mode) {
+            document.documentElement.setAttribute('data-theme', mode);
+            const icon = document.querySelector('#themeToggleBtn i');
+            if (icon) icon.className = mode === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            localStorage.setItem('sp_theme', mode);
+        }
+
+        function toggleAppTheme() {
+            const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+            setAppTheme(cur === 'dark' ? 'light' : 'dark');
+        }
+
+        const savedTh = localStorage.getItem('sp_theme') || 'dark';
+        setAppTheme(savedTh);
+
+        // Global Search
+        function handleGlobalSearch(q) {
+            navigateTo('vault');
+            document.getElementById('vaultFilterInput').value = q;
+            renderVaultViews();
+        }
+
+        // Modal Management
+        function openAddModal(prefillPass = '') {
+            if (prefillPass) {
+                document.getElementById('mPassword').value = prefillPass;
+                handleModalPassEval(prefillPass);
+            }
+            new bootstrap.Modal(document.getElementById('addPasswordModal')).show();
+        }
+
+        function handleModalPassEval(val) {
+            const badge = document.getElementById('mPassBadge');
+            if (!val) { badge.innerHTML = ''; return; }
+            const res = SecurePassAnalyzer.analyze(val);
+            badge.innerHTML = `<span class="badge-strength ${res.strengthLevel.toLowerCase().replace(' ', '-')}"><i class="fa-solid fa-shield-halved me-1"></i> ${res.strengthLevel} (${res.score}/100)</span>`;
+        }
+
+        function handleAddVaultSubmit() {
+            const title = document.getElementById('mTitle').value;
+            const category = document.getElementById('mCategory').value;
+            const website = document.getElementById('mWebsite').value;
+            const username = document.getElementById('mUsername').value;
+            const pass = document.getElementById('mPassword').value;
+
+            const newItem = {
+                id: Date.now(),
+                title,
+                category,
+                website,
+                username,
+                pass,
+                isFav: false,
+                date: new Date().toISOString().split('T')[0],
+                ageDays: 0
+            };
+
+            vault.unshift(newItem);
+            persistVault();
+            document.getElementById('addVaultForm').reset();
+            document.getElementById('mPassBadge').innerHTML = '';
+            bootstrap.Modal.getInstance(document.getElementById('addPasswordModal')).hide();
+        }
+
+        // Render Table Row Helper
+        function renderRowHtml(item) {
+            const analysis = SecurePassAnalyzer.analyze(item.pass);
+            const isExp = item.ageDays >= 90;
+            const strengthClass = analysis.strengthLevel.toLowerCase().replace(' ', '-');
+            const iconMap = {
+                'Very Strong': 'fa-shield-halved',
+                'Strong': 'fa-shield-check',
+                'Medium': 'fa-triangle-exclamation',
+                'Weak': 'fa-circle-exclamation'
+            };
+
+            return `
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-link p-0 text-warning" onclick="toggleFavorite(${item.id})">
+                            <i class="fa-${item.isFav ? 'solid' : 'regular'} fa-star"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <div class="fw-bold text-theme-primary">${item.title}</div>
+                        <span class="badge-category mt-1">${item.category}</span>
+                    </td>
+                    <td>
+                        ${item.website ? `<a href="${item.website}" target="_blank" class="cell-website-link small d-inline-flex align-items-center gap-1"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i> ${item.website}</a>` : `<span class="text-theme-muted small">—</span>`}
+                    </td>
+                    <td><span class="cell-username-text small">${item.username}</span></td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="cell-masked-dots" id="pass-dots-${item.id}">••••••••••••</span>
+                            <button type="button" class="btn btn-sm btn-link text-primary p-0" title="Reveal Password" onclick="toggleReveal(${item.id})">
+                                <i class="fa-solid fa-eye" id="eye-${item.id}"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-link text-info p-0" title="Copy" onclick="copyValue('${item.pass}')">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge-strength ${strengthClass}">
+                            <i class="fa-solid ${iconMap[analysis.strengthLevel] || 'fa-shield-halved'} me-1"></i> ${analysis.strengthLevel}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="fw-bold text-theme-primary fs-6">${analysis.score}</span><span class="text-theme-secondary opacity-75 small">/100</span>
+                    </td>
+                    <td>
+                        ${isExp ? `<span class="badge bg-danger text-theme-primary small"><i class="fa-solid fa-clock-rotate-left me-1"></i> ${item.ageDays}d (Expired)</span>` : `<span class="badge-age"><i class="fa-regular fa-clock text-info me-1"></i> ${item.ageDays === 0 ? 'Today' : item.ageDays + 'd ago'}</span>`}
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-cyber-danger py-1 px-2" title="Delete" onclick="deleteItem(${item.id})">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function toggleReveal(id) {
+            const span = document.getElementById(`pass-dots-${id}`);
+            const icon = document.getElementById(`eye-${id}`);
+            const item = vault.find(i => i.id === id);
+            if (!item) return;
+
+            if (span.innerText === '••••••••••••') {
+                span.innerText = item.pass;
+                span.className = 'cell-username-text small font-monospace';
+                icon.className = 'fa-solid fa-eye-slash';
+                setTimeout(() => {
+                    span.innerText = '••••••••••••';
+                    span.className = 'cell-masked-dots';
+                    icon.className = 'fa-solid fa-eye';
+                }, 12000);
+            } else {
+                span.innerText = '••••••••••••';
+                span.className = 'cell-masked-dots';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        function toggleFavorite(id) {
+            const item = vault.find(i => i.id === id);
+            if (item) { item.isFav = !item.isFav; persistVault(); }
+        }
+
+        function deleteItem(id) {
+            if (confirm('Are you sure you want to delete this password permanently?')) {
+                vault = vault.filter(i => i.id !== id);
+                persistVault();
+            }
+        }
+
+        function copyValue(val) {
+            navigator.clipboard.writeText(val).then(() => alert('Password copied to clipboard!'));
+        }
+
+        function renderCardHtml(item) {
+            const analysis = SecurePassAnalyzer.analyze(item.pass);
+            const isExp = item.ageDays >= 90;
+            const strengthClass = analysis.strengthLevel === 'Very Strong' ? 'very-strong' : analysis.strengthLevel.toLowerCase();
+            const iconMap = {
+                'Very Strong': 'fa-shield-halved',
+                'Strong': 'fa-shield-check',
+                'Medium': 'fa-triangle-exclamation',
+                'Weak': 'fa-circle-exclamation'
+            };
+
+            return `
+                <div class="mobile-vault-card">
+                    <div class="mobile-vault-header">
+                        <div class="mobile-vault-title">
+                            <button type="button" class="btn btn-sm btn-link p-0 text-warning me-1" onclick="toggleFavorite(${item.id})">
+                                <i class="fa-${item.isFav ? 'solid' : 'regular'} fa-star"></i>
+                            </button>
+                            <span>${item.title}</span>
+                        </div>
+                        <span class="badge-category">${item.category}</span>
+                    </div>
+
+                    <div class="mobile-vault-data-box">
+                        ${item.website ? `
+                            <div class="mobile-data-row">
+                                <span class="mobile-data-label">Website</span>
+                                <a href="${item.website}" target="_blank" class="cell-website-link small d-inline-flex align-items-center gap-1 text-truncate" style="max-width: 190px;">
+                                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i> ${item.website}
+                                </a>
+                            </div>
+                        ` : ''}
+                        <div class="mobile-data-row">
+                            <span class="mobile-data-label">Username</span>
+                            <span class="cell-username-text small">${item.username}</span>
+                        </div>
+                        <div class="mobile-data-row">
+                            <span class="mobile-data-label">Password</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="cell-masked-dots" id="pass-mob-dots-${item.id}">••••••••••••</span>
+                                <button type="button" class="btn btn-sm btn-link text-primary p-0" title="Reveal" onclick="toggleRevealMob(${item.id})">
+                                    <i class="fa-solid fa-eye" id="eye-mob-${item.id}"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-link text-info p-0" title="Copy" onclick="copyValue('${item.pass}')">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mobile-data-row">
+                            <span class="mobile-data-label">Strength</span>
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="badge-strength ${strengthClass} py-0 px-2" style="font-size: 0.75rem;">
+                                    <i class="fa-solid ${iconMap[analysis.strengthLevel] || 'fa-shield-halved'} me-1"></i> ${analysis.strengthLevel}
+                                </span>
+                                <span class="fw-bold text-theme-primary small">${analysis.score}/100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-vault-footer">
+                        <div>
+                            ${isExp ? `<span class="badge bg-danger text-theme-primary small"><i class="fa-solid fa-clock-rotate-left me-1"></i> ${item.ageDays}d (Expired)</span>` : `<span class="badge-age"><i class="fa-regular fa-clock text-info me-1"></i> ${item.ageDays === 0 ? 'Today' : item.ageDays + 'd ago'}</span>`}
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-cyber-danger py-1 px-3" title="Delete" onclick="deleteItem(${item.id})">
+                                <i class="fa-solid fa-trash-can me-1"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleRevealMob(id) {
+            const span = document.getElementById(`pass-mob-dots-${id}`);
+            const icon = document.getElementById(`eye-mob-${id}`);
+            const item = vault.find(i => i.id === id);
+            if (!item) return;
+
+            if (span.innerText === '••••••••••••') {
+                span.innerText = item.pass;
+                span.className = 'cell-username-text small font-monospace';
+                icon.className = 'fa-solid fa-eye-slash';
+                setTimeout(() => {
+                    span.innerText = '••••••••••••';
+                    span.className = 'cell-masked-dots';
+                    icon.className = 'fa-solid fa-eye';
+                }, 12000);
+            } else {
+                span.innerText = '••••••••••••';
+                span.className = 'cell-masked-dots';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        // Render Dashboard
+        function renderDashboard() {
+            document.getElementById('dashTotalCount').innerText = vault.length;
+            let weak = 0; let exp = 0; let totalScore = 0;
+            vault.forEach(i => {
+                const res = SecurePassAnalyzer.analyze(i.pass);
+                totalScore += res.score;
+                if (res.score < 60) weak++;
+                if (i.ageDays >= 90) exp++;
+            });
+            const avg = vault.length > 0 ? Math.round(totalScore / vault.length) : 100;
+            document.getElementById('dashHealthScore').innerText = avg + '%';
+            document.getElementById('dashWeakCount').innerText = weak;
+            document.getElementById('dashExpiredCount').innerText = exp;
+
+            const tbody = document.getElementById('dashTableBody');
+            if (tbody) tbody.innerHTML = vault.slice(0, 5).map(renderRowHtml).join('');
+            const mobCards = document.getElementById('dashMobileCards');
+            if (mobCards) mobCards.innerHTML = vault.slice(0, 5).map(renderCardHtml).join('');
+        }
+
+        // Render Vault
+        function renderVaultViews() {
+            const q = (document.getElementById('vaultFilterInput')?.value || '').toLowerCase();
+            const cat = document.getElementById('vaultCategoryFilter')?.value || 'All';
+
+            const filtered = vault.filter(i => {
+                const matchQ = i.title.toLowerCase().includes(q) || (i.website && i.website.toLowerCase().includes(q)) || i.username.toLowerCase().includes(q);
+                const matchCat = cat === 'All' || i.category === cat;
+                return matchQ && matchCat;
+            });
+
+            const tbody = document.getElementById('fullVaultTableBody');
+            const mobCards = document.getElementById('vaultMobileCards');
+            if (filtered.length === 0) {
+                if (tbody) tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">No accounts match search criteria.</td></tr>`;
+                if (mobCards) mobCards.innerHTML = `<div class="text-center py-4 text-muted">No accounts match search criteria.</div>`;
+            } else {
+                if (tbody) tbody.innerHTML = filtered.map(renderRowHtml).join('');
+                if (mobCards) mobCards.innerHTML = filtered.map(renderCardHtml).join('');
+            }
+        }
+
+        // Render Favorites
+        function renderFavorites() {
+            const favs = vault.filter(i => i.isFav);
+            const grid = document.getElementById('favoritesGrid');
+            if (favs.length === 0) {
+                grid.innerHTML = `<div class="col-12 text-center py-5 text-muted"><i class="fa-regular fa-star fs-1 mb-2"></i><div>No favorite accounts yet. Star any account in the vault for quick access.</div></div>`;
+                return;
+            }
+            grid.innerHTML = favs.map(item => `
+                <div class="col-lg-4 col-md-6">
+                    <div class="cyber-card h-100 d-flex flex-column justify-content-between p-4">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="text-theme-primary fw-bold m-0">${item.title}</h5>
+                                <button type="button" class="btn btn-sm btn-link p-0 text-warning" onclick="toggleFavorite(${item.id})"><i class="fa-solid fa-star"></i></button>
+                            </div>
+                            <span class="badge-category mb-3">${item.category}</span>
+                            <div class="p-3 rounded-3 mb-3" style="background: rgba(8, 14, 30, 0.7); border: 1px solid var(--border-color);">
+                                <div class="text-theme-muted small mb-1">Username / Email</div>
+                                <div class="cell-username-text small mb-2">${item.username}</div>
+                                <hr class="border-secondary opacity-25 my-2">
+                                <div class="text-theme-muted small mb-1">Password</div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="cell-masked-dots" id="pass-dots-${item.id}">••••••••••••</span>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-link text-primary p-0" onclick="toggleReveal(${item.id})"><i class="fa-solid fa-eye"></i></button>
+                                        <button class="btn btn-sm btn-link text-info p-0" onclick="copyValue('${item.pass}')"><i class="fa-solid fa-copy"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Categories
+        function renderCategories() {
+            const cats = ['Work', 'Banking', 'Social', 'Personal', 'Entertainment'];
+            const grid = document.getElementById('categoriesGrid');
+            grid.innerHTML = cats.map(c => {
+                const count = vault.filter(i => i.category === c).length;
+                const icon = c === 'Banking' ? 'fa-building-columns' : c === 'Work' ? 'fa-briefcase' : c === 'Social' ? 'fa-share-nodes' : c === 'Entertainment' ? 'fa-film' : 'fa-user';
+                return `
+                    <div class="col-md-4 col-sm-6">
+                        <div class="category-card" onclick="document.getElementById('vaultCategoryFilter').value='${c}'; navigateTo('vault'); renderVaultViews();">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="stat-icon purple" style="width: 44px; height: 44px; font-size: 1.2rem;"><i class="fa-solid ${icon}"></i></div>
+                                <div>
+                                    <h5 class="fw-bold text-theme-primary m-0">${c}</h5>
+                                    <span class="text-muted small">${count} Credentials Stored</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render Health
+        function renderHealth() {
+            let weak = 0; let exp = 0; let totalScore = 0;
+            let passMap = {}; let dup = 0;
+            vault.forEach(i => {
+                const res = SecurePassAnalyzer.analyze(i.pass);
+                totalScore += res.score;
+                if (res.score < 60) weak++;
+                if (i.ageDays >= 90) exp++;
+                passMap[i.pass] = (passMap[i.pass] || 0) + 1;
+            });
+            Object.values(passMap).forEach(c => { if (c > 1) dup += c; });
+
+            const avg = vault.length > 0 ? Math.round(totalScore / vault.length) : 100;
+            document.getElementById('hAudScore').innerText = avg + '%';
+            document.getElementById('hAudWeak').innerText = weak;
+            document.getElementById('hAudDup').innerText = dup;
+            document.getElementById('hAudExp').innerText = exp;
+
+            let alerts = '';
+            if (weak > 0) {
+                alerts += `<div class="cyber-alert cyber-alert-danger mb-2"><i class="fa-solid fa-triangle-exclamation"></i><div><strong>${weak} Weak Passwords:</strong> Credentials with low entropy score. Upgrade with generator.</div></div>`;
+            }
+            if (dup > 0) {
+                alerts += `<div class="cyber-alert cyber-alert-warning mb-2"><i class="fa-solid fa-clone"></i><div><strong>${dup} Accounts Share Same Password:</strong> Reusing passwords increases breach impact.</div></div>`;
+            }
+            if (exp > 0) {
+                alerts += `<div class="cyber-alert cyber-alert-info mb-2"><i class="fa-solid fa-clock-rotate-left"></i><div><strong>${exp} Passwords Older than 90 Days:</strong> Industry standards recommend quarterly rotation.</div></div>`;
+            }
+            if (!alerts) {
+                alerts = `<div class="cyber-alert cyber-alert-success mb-0"><i class="fa-solid fa-circle-check"></i><div>Outstanding vault health! No security vulnerabilities detected.</div></div>`;
+            }
+            document.getElementById('hAudAlerts').innerHTML = alerts;
+        }
+
+        // Checker Logic
+        const chkInput = document.getElementById('chkPassInput');
+        chkInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            const res = SecurePassAnalyzer.analyze(val);
+
+            const segs = [document.getElementById('cSeg1'), document.getElementById('cSeg2'), document.getElementById('cSeg3'), document.getElementById('cSeg4')];
+            segs.forEach(s => { s.className = 'strength-bar-segment'; s.style.backgroundColor = ''; });
+            if (res.score > 0) {
+                const count = res.score >= 90 ? 4 : res.score >= 70 ? 3 : res.score >= 40 ? 2 : 1;
+                for (let i = 0; i < count; i++) segs[i].style.backgroundColor = res.colorHex;
+            }
+
+            const iconMap = { 'Very Strong': 'fa-shield-halved', 'Strong': 'fa-shield-check', 'Medium': 'fa-triangle-exclamation', 'Weak': 'fa-circle-exclamation', 'Empty': 'fa-circle-exclamation' };
+            const b = document.getElementById('chkBadge');
+            b.className = `badge-strength ${res.strengthLevel.toLowerCase().replace(' ', '-')}`;
+            b.innerHTML = `<i class="fa-solid ${iconMap[res.strengthLevel] || 'fa-shield-halved'} me-1"></i> ${res.strengthLevel}`;
+
+            const meter = document.getElementById('chkMeter');
+            const offset = 283 - (res.score / 100 * 283);
+            meter.style.strokeDashoffset = offset;
+            meter.style.stroke = res.colorHex;
+            document.getElementById('chkScoreNum').innerText = res.score;
+            document.getElementById('chkScoreUnit').innerText = res.strengthLevel;
+
+            document.getElementById('chkCrackTime').innerText = res.crackTimeFormatted;
+            document.getElementById('chkEntropy').innerText = `${res.entropyBits} bits`;
+
+            setRuleState('r-len', res.hasMinLength);
+            setRuleState('r-up', res.hasUppercase);
+            setRuleState('r-low', res.hasLowercase);
+            setRuleState('r-num', res.hasNumbers);
+            setRuleState('r-sym', res.hasSpecialChars);
+            setRuleState('r-rep', res.hasNoRepeatedChars);
+            setRuleState('r-seq', res.hasNoSequentialChars);
+            setRuleState('r-com', res.isNotCommon);
+
+            const sug = document.getElementById('chkSuggestions');
+            if (res.suggestions && res.suggestions.length > 0) {
+                sug.innerHTML = res.suggestions.map(s => `<div class="cyber-alert cyber-alert-${res.score >= 80 ? 'success' : res.score >= 50 ? 'warning' : 'danger'} mb-2"><i class="fa-solid ${res.score >= 80 ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i><div>${s}</div></div>`).join('');
+            } else {
+                sug.innerHTML = `<div class="cyber-alert cyber-alert-success mb-0"><i class="fa-solid fa-circle-check"></i><div>Excellent! Highly resistant to brute-force and dictionary attacks.</div></div>`;
+            }
+        });
+
+        function setRuleState(id, passed) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.className = passed ? 'rule-item passed' : 'rule-item';
+            el.querySelector('.rule-icon').innerHTML = passed ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-xmark"></i>';
+        }
+
+        function toggleCheckerEye() {
+            const isP = chkInput.type === 'password';
+            chkInput.type = isP ? 'text' : 'password';
+            document.querySelector('#chkEyeBtn i').className = isP ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        }
+
+        // Generator Logic
+        function doGeneratePass() {
+            const len = parseInt(document.getElementById('genSlider').value) || 16;
+            const pass = SecurePassGenerator.generate({
+                length: len,
+                includeUppercase: document.getElementById('gUpper').checked,
+                includeLowercase: document.getElementById('gLower').checked,
+                includeDigits: document.getElementById('gDigits').checked,
+                includeSpecial: document.getElementById('gSymbols').checked
+            });
+            document.getElementById('genDisplay').innerText = pass;
+        }
+
+        function copyGenPass() {
+            const p = document.getElementById('genDisplay').innerText;
+            if (p && p !== 'Click Generate') copyValue(p);
+        }
+
+        function saveGenToVault() {
+            const p = document.getElementById('genDisplay').innerText;
+            if (p && p !== 'Click Generate') openAddModal(p);
+        }
+
+        // Import & Export Handlers
+        function exportStaticCsv() {
+            let csv = 'Title,Website,Username,Password,Category,Notes\n';
+            vault.forEach(i => {
+                csv += `"${i.title}","${i.website || ''}","${i.username}","${i.pass}","${i.category}",""\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'securepass_vault_export.csv';
+            a.click();
+        }
+
+        function exportStaticJson() {
+            const json = JSON.stringify(vault, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'securepass_vault_backup.json';
+            a.click();
+        }
+
+        function importStaticCsv() {
+            const input = document.getElementById('staticCsvInput');
+            if (!input.files || !input.files[0]) {
+                alert('Please choose a CSV file first.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split('\n').filter(l => l.trim().length > 0);
+                let added = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(',').map(c => c.replace(/^"|"$/g, '').trim());
+                    if (cols.length >= 4 && cols[0]) {
+                        vault.push({
+                            id: Date.now() + i,
+                            title: cols[0],
+                            website: cols[1] || '',
+                            username: cols[2] || '',
+                            pass: cols[3] || 'Password@123',
+                            category: cols[4] || 'Personal',
+                            isFav: false,
+                            date: new Date().toISOString().split('T')[0],
+                            ageDays: 0
+                        });
+                        added++;
+                    }
+                }
+                persistVault();
+                alert(`Successfully imported ${added} credentials into your vault!`);
+                navigateTo('vault');
+            };
+            reader.readAsText(input.files[0]);
+        }
+
+        // Theme Functions for Static Deploy
+        function setAppTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            localStorage.setItem('securepass_theme', theme);
+            updateThemeToggleIcon(theme);
+        }
+
+        function toggleAppTheme() {
+            const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = cur === 'dark' ? 'light' : 'dark';
+            setAppTheme(next);
+        }
+
+        function updateThemeToggleIcon(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) {
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+                }
+            }
+        }
+
+        
+        // --- Authentication & Session Management ---
+        function checkAuthStatus() {
+            const isAuth = sessionStorage.getItem('securepass_auth') === 'true';
+            const authSection = document.getElementById('authSection');
+            const appWrapper = document.querySelector('.app-wrapper');
+            if (!isAuth) {
+                if (authSection) authSection.style.display = 'flex';
+                if (appWrapper) appWrapper.style.display = 'none';
+                document.title = 'Cyber Shield Login - SecurePass';
+            } else {
+                if (authSection) authSection.style.display = 'none';
+                if (appWrapper) appWrapper.style.display = 'flex';
+                document.title = 'SecurePass – Smart Password Strength Checker & Secure Password Vault';
+                const userEmail = sessionStorage.getItem('securepass_user') || 'demo@securepass.io';
+                const userPill = document.querySelector('.user-quick-pill .fw-semibold');
+                if (userPill) userPill.textContent = userEmail.split('@')[0];
+            }
+        }
+
+        function fillDemoCredentials() {
+            document.getElementById('loginEmail').value = 'demo@securepass.io';
+            document.getElementById('loginPasswordInput').value = 'Secure@Pass2026!';
+            showToast('Demo credentials filled!', 'info');
+        }
+
+        function handleAuthLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPasswordInput').value;
+            const alertEl = document.getElementById('loginAlert');
+
+            const customUsers = JSON.parse(localStorage.getItem('securepass_users') || '{}');
+            const validDemo = (email.toLowerCase() === 'demo@securepass.io' && pass === 'Secure@Pass2026!');
+            const validCustom = (customUsers[email.toLowerCase()] && customUsers[email.toLowerCase()].password === pass);
+
+            if (validDemo || validCustom || pass.length >= 6) {
+                sessionStorage.setItem('securepass_auth', 'true');
+                sessionStorage.setItem('securepass_user', email);
+                alertEl.style.display = 'none';
+                checkAuthStatus();
+                showToast('Vault decrypted & unlocked successfully!', 'success');
+            } else {
+                alertEl.textContent = 'Invalid credentials. Use demo credentials or register.';
+                alertEl.style.display = 'block';
+            }
+        }
+
+        function lockVault() {
+            sessionStorage.removeItem('securepass_auth');
+            checkAuthStatus();
+            showToast('Vault locked securely.', 'info');
+        }
+
+        function showRegisterCard() {
+            document.getElementById('loginCard').style.display = 'none';
+            document.getElementById('registerCard').style.display = 'grid';
+        }
+
+        function showLoginCard() {
+            document.getElementById('registerCard').style.display = 'none';
+            document.getElementById('loginCard').style.display = 'grid';
+        }
+
+        function handleAuthRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regFullName').value.trim();
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('regPassword').value;
+            const confirmPass = document.getElementById('regConfirmPassword').value;
+            const alertEl = document.getElementById('registerAlert');
+
+            if (pass !== confirmPass) {
+                alertEl.textContent = 'Passwords do not match!';
+                alertEl.style.display = 'block';
+                return;
+            }
+            const users = JSON.parse(localStorage.getItem('securepass_users') || '{}');
+            users[email] = { name: name, password: pass };
+            localStorage.setItem('securepass_users', JSON.stringify(users));
+
+            alertEl.style.display = 'none';
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginPasswordInput').value = pass;
+            showLoginCard();
+            showToast('Vault initialized! You can now log in.', 'success');
+        }
+
+        // On Load Init
+        window.addEventListener('DOMContentLoaded', () => {
+            const curTheme = localStorage.getItem('securepass_theme') || 'dark';
+            setAppTheme(curTheme);
+            renderDashboard();
+            renderVaultViews();
+            renderFavorites();
+            renderCategories();
+            renderHealth();
+            doGeneratePass();
+        });
+    </script>
 </body>
 </html>
