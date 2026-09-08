@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: securepass-vault
+    env: docker
+    plan: free
+    branch: main
+    healthCheckPath: /Account/Login
