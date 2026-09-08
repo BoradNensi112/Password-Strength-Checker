@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="utf-8" />
@@ -11,6 +11,13 @@
     
     <link rel="stylesheet" href="~/css/cyber-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/strength-meter.css" asp-append-version="true" />
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('securepass_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
+    </script>
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="cyber-grid-bg">

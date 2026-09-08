@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeToggleBtn = document.getElementById('themeToggleBtn');
     const currentTheme = localStorage.getItem('securepass_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', currentTheme);
+    document.documentElement.setAttribute('data-bs-theme', currentTheme);
     updateThemeIcon(currentTheme);
 
     if (themeToggleBtn) {
@@ -48,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const cur = document.documentElement.getAttribute('data-theme') || 'dark';
             const next = cur === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
+            document.documentElement.setAttribute('data-bs-theme', next);
             localStorage.setItem('securepass_theme', next);
             updateThemeIcon(next);
 

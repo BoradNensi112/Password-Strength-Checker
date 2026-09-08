@@ -19,6 +19,13 @@
     <!-- Custom Cyber Stylesheets -->
     <link rel="stylesheet" href="wwwroot/css/cyber-theme.css" />
     <link rel="stylesheet" href="wwwroot/css/strength-meter.css" />
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('securepass_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
+    </script>
     <style>
         .view-section {
             display: none;
@@ -98,6 +105,10 @@
                     <i class="fa-solid fa-heart-pulse text-danger"></i>
                     <span>Password Health</span>
                 </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('importexport', this)">
+                    <i class="fa-solid fa-file-import"></i>
+                    <span>Import & Export</span>
+                </a>
 
                 <div class="menu-category-title mt-2">System</div>
                 <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('settings', this)">
@@ -171,7 +182,7 @@
 
                     <!-- 4 Stat Cards -->
                     <div class="row g-3 mb-4">
-                        <div class="col-xl-3 col-sm-6">
+                        <div class="col-xl-3 col-6">
                             <div class="cyber-card stat-card h-100" onclick="navigateTo('vault')" style="cursor: pointer;">
                                 <div class="stat-info">
                                     <div class="stat-label">Total Passwords</div>
@@ -180,7 +191,7 @@
                                 <div class="stat-icon purple"><i class="fa-solid fa-vault"></i></div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-sm-6">
+                        <div class="col-xl-3 col-6">
                             <div class="cyber-card stat-card h-100" onclick="navigateTo('health')" style="cursor: pointer;">
                                 <div class="stat-info">
                                     <div class="stat-label">Vault Health</div>
@@ -189,7 +200,7 @@
                                 <div class="stat-icon green"><i class="fa-solid fa-heart-pulse"></i></div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-sm-6">
+                        <div class="col-xl-3 col-6">
                             <div class="cyber-card stat-card h-100" onclick="navigateTo('health')" style="cursor: pointer;">
                                 <div class="stat-info">
                                     <div class="stat-label">Weak Credentials</div>
@@ -198,7 +209,7 @@
                                 <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-sm-6">
+                        <div class="col-xl-3 col-6">
                             <div class="cyber-card stat-card h-100" onclick="navigateTo('health')" style="cursor: pointer;">
                                 <div class="stat-info">
                                     <div class="stat-label">Expired (>90d)</div>
@@ -246,7 +257,8 @@
                             <h5 class="text-theme-primary fw-bold m-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Vault Credentials</h5>
                             <button class="btn btn-sm btn-cyber-outline py-1 px-3" onclick="navigateTo('vault')">View All &rarr;</button>
                         </div>
-                        <div class="cyber-table-wrapper">
+                        <!-- Desktop Table (>= 768px) -->
+                        <div class="cyber-table-wrapper d-none d-md-block">
                             <table class="cyber-table">
                                 <thead>
                                     <tr>
@@ -265,6 +277,10 @@
                                     <!-- Populated dynamically -->
                                 </tbody>
                             </table>
+                        </div>
+                        <!-- Mobile Cards (< 768px) -->
+                        <div class="mobile-vault-cards d-md-none d-flex flex-column gap-3" id="dashMobileCards">
+                            <!-- Populated dynamically -->
                         </div>
                     </div>
                 </div>
@@ -299,7 +315,8 @@
                         </div>
                     </div>
 
-                    <div class="cyber-table-wrapper">
+                    <!-- Desktop Table (>= 768px) -->
+                    <div class="cyber-table-wrapper d-none d-md-block">
                         <table class="cyber-table">
                             <thead>
                                 <tr>
@@ -318,6 +335,11 @@
                                 <!-- Populated dynamically -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Mobile Cards (< 768px) -->
+                    <div class="mobile-vault-cards d-md-none d-flex flex-column gap-3" id="vaultMobileCards">
+                        <!-- Populated dynamically -->
                     </div>
                 </div>
 
@@ -602,6 +624,77 @@
                             <input type="number" class="cyber-input" value="16" min="8" max="32" style="max-width: 150px;">
                         </div>
                     </div>
+                <!-- 9. IMPORT & EXPORT VIEW -->
+                <div id="view-importexport" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-file-import"></i> Import & Export Data</h1>
+                            <p class="page-subtitle">Backup your encrypted vault or import credentials from external password managers</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="cyber-card h-100">
+                                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-file-export me-2 text-primary"></i> Export Vault Credentials</h5>
+                                <p class="text-secondary small mb-4">
+                                    Download a secure snapshot or portable backup of your stored accounts. Keep exported files securely in an encrypted drive.
+                                </p>
+
+                                <div class="d-flex flex-column gap-3 mb-4">
+                                    <div class="p-3 rounded-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                        <div class="flex-grow-1">
+                                            <div class="text-theme-primary fw-semibold"><i class="fa-solid fa-file-csv text-success me-2"></i> CSV Spreadsheet (.csv)</div>
+                                            <div class="text-muted small">Standard format compatible with Excel, Google Sheets, Bitwarden, 1Password</div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-cyber-primary py-2 px-3 text-nowrap w-100 w-sm-auto text-center" onclick="exportStaticCsv()">
+                                            <i class="fa-solid fa-download"></i> Export CSV
+                                        </button>
+                                    </div>
+
+                                    <div class="p-3 rounded-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                        <div class="flex-grow-1">
+                                            <div class="text-theme-primary fw-semibold"><i class="fa-solid fa-file-code text-info me-2"></i> JSON Data Backup (.json)</div>
+                                            <div class="text-muted small">Structured format with complete timestamps, notes, and metadata</div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-cyber-outline py-2 px-3 text-nowrap w-100 w-sm-auto text-center" onclick="exportStaticJson()">
+                                            <i class="fa-solid fa-download"></i> Export JSON
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 rounded-3" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);">
+                                    <div class="text-danger small fw-semibold"><i class="fa-solid fa-shield-halved me-1"></i> Security Warning</div>
+                                    <div class="text-muted small" style="font-size: 0.8rem;">
+                                        Exported files contain plaintext passwords. Delete them after transferring to a secure offline vault.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="cyber-card h-100">
+                                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-file-import me-2 text-success"></i> Import Passwords via CSV</h5>
+                                <p class="text-secondary small mb-3">
+                                    Bulk upload accounts from Chrome, Firefox, or other password managers into SecurePass vault.
+                                </p>
+
+                                <div class="cyber-form-group mb-3">
+                                    <label class="cyber-label">Upload CSV File</label>
+                                    <input type="file" id="staticCsvInput" class="form-control bg-dark text-theme-primary border-secondary" accept=".csv" style="max-width: 100%;" />
+                                </div>
+
+                                <div class="p-3 rounded-3 mb-4" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                    <div class="text-muted small mb-1 fw-bold">Supported CSV Header Structure:</div>
+                                    <code class="text-cyan small d-block text-break" style="word-break: break-all;">Title,Website,Username,Password,Category,Notes</code>
+                                </div>
+
+                                <button type="button" class="btn-cyber-success w-100 justify-content-center py-2" onclick="importStaticCsv()">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload & Encrypt Passwords
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -874,6 +967,101 @@
             navigator.clipboard.writeText(val).then(() => alert('Password copied to clipboard!'));
         }
 
+        function renderCardHtml(item) {
+            const analysis = SecurePassAnalyzer.analyze(item.pass);
+            const isExp = item.ageDays >= 90;
+            const strengthClass = analysis.strengthLevel === 'Very Strong' ? 'very-strong' : analysis.strengthLevel.toLowerCase();
+            const iconMap = {
+                'Very Strong': 'fa-shield-halved',
+                'Strong': 'fa-shield-check',
+                'Medium': 'fa-triangle-exclamation',
+                'Weak': 'fa-circle-exclamation'
+            };
+
+            return `
+                <div class="mobile-vault-card">
+                    <div class="mobile-vault-header">
+                        <div class="mobile-vault-title">
+                            <button type="button" class="btn btn-sm btn-link p-0 text-warning me-1" onclick="toggleFavorite(${item.id})">
+                                <i class="fa-${item.isFav ? 'solid' : 'regular'} fa-star"></i>
+                            </button>
+                            <span>${item.title}</span>
+                        </div>
+                        <span class="badge-category">${item.category}</span>
+                    </div>
+
+                    <div class="mobile-vault-data-box">
+                        ${item.website ? `
+                            <div class="mobile-data-row">
+                                <span class="mobile-data-label">Website</span>
+                                <a href="${item.website}" target="_blank" class="cell-website-link small d-inline-flex align-items-center gap-1 text-truncate" style="max-width: 190px;">
+                                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i> ${item.website}
+                                </a>
+                            </div>
+                        ` : ''}
+                        <div class="mobile-data-row">
+                            <span class="mobile-data-label">Username</span>
+                            <span class="cell-username-text small">${item.username}</span>
+                        </div>
+                        <div class="mobile-data-row">
+                            <span class="mobile-data-label">Password</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="cell-masked-dots" id="pass-mob-dots-${item.id}">••••••••••••</span>
+                                <button type="button" class="btn btn-sm btn-link text-primary p-0" title="Reveal" onclick="toggleRevealMob(${item.id})">
+                                    <i class="fa-solid fa-eye" id="eye-mob-${item.id}"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-link text-info p-0" title="Copy" onclick="copyValue('${item.pass}')">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mobile-data-row">
+                            <span class="mobile-data-label">Strength</span>
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="badge-strength ${strengthClass} py-0 px-2" style="font-size: 0.75rem;">
+                                    <i class="fa-solid ${iconMap[analysis.strengthLevel] || 'fa-shield-halved'} me-1"></i> ${analysis.strengthLevel}
+                                </span>
+                                <span class="fw-bold text-theme-primary small">${analysis.score}/100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-vault-footer">
+                        <div>
+                            ${isExp ? `<span class="badge bg-danger text-theme-primary small"><i class="fa-solid fa-clock-rotate-left me-1"></i> ${item.ageDays}d (Expired)</span>` : `<span class="badge-age"><i class="fa-regular fa-clock text-info me-1"></i> ${item.ageDays === 0 ? 'Today' : item.ageDays + 'd ago'}</span>`}
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-cyber-danger py-1 px-3" title="Delete" onclick="deleteItem(${item.id})">
+                                <i class="fa-solid fa-trash-can me-1"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleRevealMob(id) {
+            const span = document.getElementById(`pass-mob-dots-${id}`);
+            const icon = document.getElementById(`eye-mob-${id}`);
+            const item = vault.find(i => i.id === id);
+            if (!item) return;
+
+            if (span.innerText === '••••••••••••') {
+                span.innerText = item.pass;
+                span.className = 'cell-username-text small font-monospace';
+                icon.className = 'fa-solid fa-eye-slash';
+                setTimeout(() => {
+                    span.innerText = '••••••••••••';
+                    span.className = 'cell-masked-dots';
+                    icon.className = 'fa-solid fa-eye';
+                }, 12000);
+            } else {
+                span.innerText = '••••••••••••';
+                span.className = 'cell-masked-dots';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
         // Render Dashboard
         function renderDashboard() {
             document.getElementById('dashTotalCount').innerText = vault.length;
@@ -890,7 +1078,9 @@
             document.getElementById('dashExpiredCount').innerText = exp;
 
             const tbody = document.getElementById('dashTableBody');
-            tbody.innerHTML = vault.slice(0, 5).map(renderRowHtml).join('');
+            if (tbody) tbody.innerHTML = vault.slice(0, 5).map(renderRowHtml).join('');
+            const mobCards = document.getElementById('dashMobileCards');
+            if (mobCards) mobCards.innerHTML = vault.slice(0, 5).map(renderCardHtml).join('');
         }
 
         // Render Vault
@@ -905,10 +1095,13 @@
             });
 
             const tbody = document.getElementById('fullVaultTableBody');
+            const mobCards = document.getElementById('vaultMobileCards');
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">No accounts match search criteria.</td></tr>`;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">No accounts match search criteria.</td></tr>`;
+                if (mobCards) mobCards.innerHTML = `<div class="text-center py-4 text-muted">No accounts match search criteria.</div>`;
             } else {
-                tbody.innerHTML = filtered.map(renderRowHtml).join('');
+                if (tbody) tbody.innerHTML = filtered.map(renderRowHtml).join('');
+                if (mobCards) mobCards.innerHTML = filtered.map(renderCardHtml).join('');
             }
         }
 
@@ -1087,8 +1280,92 @@
             if (p && p !== 'Click Generate') openAddModal(p);
         }
 
+        // Import & Export Handlers
+        function exportStaticCsv() {
+            let csv = 'Title,Website,Username,Password,Category,Notes\n';
+            vault.forEach(i => {
+                csv += `"${i.title}","${i.website || ''}","${i.username}","${i.pass}","${i.category}",""\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'securepass_vault_export.csv';
+            a.click();
+        }
+
+        function exportStaticJson() {
+            const json = JSON.stringify(vault, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'securepass_vault_backup.json';
+            a.click();
+        }
+
+        function importStaticCsv() {
+            const input = document.getElementById('staticCsvInput');
+            if (!input.files || !input.files[0]) {
+                alert('Please choose a CSV file first.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split('\n').filter(l => l.trim().length > 0);
+                let added = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(',').map(c => c.replace(/^"|"$/g, '').trim());
+                    if (cols.length >= 4 && cols[0]) {
+                        vault.push({
+                            id: Date.now() + i,
+                            title: cols[0],
+                            website: cols[1] || '',
+                            username: cols[2] || '',
+                            pass: cols[3] || 'Password@123',
+                            category: cols[4] || 'Personal',
+                            isFav: false,
+                            date: new Date().toISOString().split('T')[0],
+                            ageDays: 0
+                        });
+                        added++;
+                    }
+                }
+                persistVault();
+                alert(`Successfully imported ${added} credentials into your vault!`);
+                navigateTo('vault');
+            };
+            reader.readAsText(input.files[0]);
+        }
+
+        // Theme Functions for Static Deploy
+        function setAppTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            localStorage.setItem('securepass_theme', theme);
+            updateThemeToggleIcon(theme);
+        }
+
+        function toggleAppTheme() {
+            const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = cur === 'dark' ? 'light' : 'dark';
+            setAppTheme(next);
+        }
+
+        function updateThemeToggleIcon(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) {
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+                }
+            }
+        }
+
         // On Load Init
         window.addEventListener('DOMContentLoaded', () => {
+            const curTheme = localStorage.getItem('securepass_theme') || 'dark';
+            setAppTheme(curTheme);
             renderDashboard();
             renderVaultViews();
             renderFavorites();

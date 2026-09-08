@@ -1,4 +1,4 @@
-﻿@model SecurePass.Models.ViewModels.SettingsViewModel
+@model SecurePass.Models.ViewModels.SettingsViewModel
 @{
     ViewData["Title"] = "Security & Preferences";
 }
@@ -21,8 +21,8 @@
                 <p class="text-muted small mb-3">Select your preferred color scheme. The interface switches immediately.</p>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-3 p-3 rounded-3 theme-card-option" id="themeDarkCard" style="background: rgba(8, 14, 30, 0.6); border: 2px solid @(Model.ThemeMode == "dark" ? "var(--accent-purple)" : "var(--border-color)"); cursor: pointer;">
-                            <input type="radio" asp-for="ThemeMode" value="dark" class="form-check-input bg-dark border-secondary m-0" onchange="previewTheme('dark')" />
+                        <label class="d-flex align-items-center gap-3 p-3 rounded-3 theme-card-option cyber-inner-box" id="themeDarkCard" style="border: 2px solid @(Model.ThemeMode == "dark" ? "var(--accent-purple)" : "var(--border-color)"); cursor: pointer;">
+                            <input type="radio" asp-for="ThemeMode" value="dark" class="form-check-input m-0" onchange="previewTheme('dark')" />
                             <div>
                                 <div class="text-theme-primary fw-semibold"><i class="fa-solid fa-moon text-primary me-2"></i> Cyber Dark Mode</div>
                                 <div class="text-muted small">Futuristic dark navy & neon glow</div>
@@ -30,8 +30,8 @@
                         </label>
                     </div>
                     <div class="col-md-6">
-                        <label class="d-flex align-items-center gap-3 p-3 rounded-3 theme-card-option" id="themeLightCard" style="background: rgba(8, 14, 30, 0.6); border: 2px solid @(Model.ThemeMode == "light" ? "var(--accent-purple)" : "var(--border-color)"); cursor: pointer;">
-                            <input type="radio" asp-for="ThemeMode" value="light" class="form-check-input bg-dark border-secondary m-0" onchange="previewTheme('light')" />
+                        <label class="d-flex align-items-center gap-3 p-3 rounded-3 theme-card-option cyber-inner-box" id="themeLightCard" style="border: 2px solid @(Model.ThemeMode == "light" ? "var(--accent-purple)" : "var(--border-color)"); cursor: pointer;">
+                            <input type="radio" asp-for="ThemeMode" value="light" class="form-check-input m-0" onchange="previewTheme('light')" />
                             <div>
                                 <div class="text-theme-primary fw-semibold"><i class="fa-solid fa-sun text-warning me-2"></i> Light Mode</div>
                                 <div class="text-muted small">Clean daylight interface</div>
@@ -157,6 +157,7 @@
 
         function previewTheme(mode) {
             document.documentElement.setAttribute('data-theme', mode);
+            document.documentElement.setAttribute('data-bs-theme', mode);
             localStorage.setItem('securepass_theme', mode);
 
             const darkCard = document.getElementById('themeDarkCard');
