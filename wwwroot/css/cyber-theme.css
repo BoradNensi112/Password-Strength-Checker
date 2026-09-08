@@ -808,10 +808,34 @@ select.cyber-select option {
     color: #A5B4FC;
     letter-spacing: 2px;
     font-size: 1.05rem;
+    display: inline-block;
+    max-width: 135px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
 }
 
 [data-theme="light"] .cell-masked-dots {
     color: #64748B;
+}
+
+.password-revealed {
+    display: inline-block;
+    max-width: 135px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    font-family: monospace;
+    letter-spacing: 0;
+}
+
+.password-col-cell {
+    width: 195px;
+    min-width: 185px;
+    max-width: 215px;
+    white-space: nowrap;
 }
 
 /* Strength Badges with Security Icons */

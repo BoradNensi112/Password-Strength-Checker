@@ -98,6 +98,10 @@
                     <i class="fa-solid fa-heart-pulse text-danger"></i>
                     <span>Password Health</span>
                 </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('importexport', this)">
+                    <i class="fa-solid fa-file-import"></i>
+                    <span>Import & Export</span>
+                </a>
 
                 <div class="menu-category-title mt-2">System</div>
                 <a href="javascript:void(0)" class="nav-link-item" onclick="navigateTo('settings', this)">
@@ -611,6 +615,77 @@
                         <div class="cyber-form-group mb-3">
                             <label class="cyber-label">Default Generator Length</label>
                             <input type="number" class="cyber-input" value="16" min="8" max="32" style="max-width: 150px;">
+                        </div>
+                    </div>
+                <!-- 9. IMPORT & EXPORT VIEW -->
+                <div id="view-importexport" class="view-section">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title"><i class="fa-solid fa-file-import"></i> Import & Export Data</h1>
+                            <p class="page-subtitle">Backup your encrypted vault or import credentials from external password managers</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="cyber-card h-100">
+                                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-file-export me-2 text-primary"></i> Export Vault Credentials</h5>
+                                <p class="text-secondary small mb-4">
+                                    Download a secure snapshot or portable backup of your stored accounts. Keep exported files securely in an encrypted drive.
+                                </p>
+
+                                <div class="d-flex flex-column gap-3 mb-4">
+                                    <div class="p-3 rounded-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                        <div class="flex-grow-1">
+                                            <div class="text-theme-primary fw-semibold"><i class="fa-solid fa-file-csv text-success me-2"></i> CSV Spreadsheet (.csv)</div>
+                                            <div class="text-muted small">Standard format compatible with Excel, Google Sheets, Bitwarden, 1Password</div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-cyber-primary py-2 px-3 text-nowrap w-100 w-sm-auto text-center" onclick="exportStaticCsv()">
+                                            <i class="fa-solid fa-download"></i> Export CSV
+                                        </button>
+                                    </div>
+
+                                    <div class="p-3 rounded-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                        <div class="flex-grow-1">
+                                            <div class="text-theme-primary fw-semibold"><i class="fa-solid fa-file-code text-info me-2"></i> JSON Data Backup (.json)</div>
+                                            <div class="text-muted small">Structured format with complete timestamps, notes, and metadata</div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-cyber-outline py-2 px-3 text-nowrap w-100 w-sm-auto text-center" onclick="exportStaticJson()">
+                                            <i class="fa-solid fa-download"></i> Export JSON
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 rounded-3" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);">
+                                    <div class="text-danger small fw-semibold"><i class="fa-solid fa-shield-halved me-1"></i> Security Warning</div>
+                                    <div class="text-muted small" style="font-size: 0.8rem;">
+                                        Exported files contain plaintext passwords. Delete them after transferring to a secure offline vault.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="cyber-card h-100">
+                                <h5 class="text-theme-primary fw-bold mb-3"><i class="fa-solid fa-file-import me-2 text-success"></i> Import Passwords via CSV</h5>
+                                <p class="text-secondary small mb-3">
+                                    Bulk upload accounts from Chrome, Firefox, or other password managers into SecurePass vault.
+                                </p>
+
+                                <div class="cyber-form-group mb-3">
+                                    <label class="cyber-label">Upload CSV File</label>
+                                    <input type="file" id="staticCsvInput" class="form-control bg-dark text-theme-primary border-secondary" accept=".csv" style="max-width: 100%;" />
+                                </div>
+
+                                <div class="p-3 rounded-3 mb-4" style="background: rgba(8, 14, 30, 0.6); border: 1px solid var(--border-color);">
+                                    <div class="text-muted small mb-1 fw-bold">Supported CSV Header Structure:</div>
+                                    <code class="text-cyan small d-block text-break" style="word-break: break-all;">Title,Website,Username,Password,Category,Notes</code>
+                                </div>
+
+                                <button type="button" class="btn-cyber-success w-100 justify-content-center py-2" onclick="importStaticCsv()">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload & Encrypt Passwords
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1196,6 +1271,64 @@
         function saveGenToVault() {
             const p = document.getElementById('genDisplay').innerText;
             if (p && p !== 'Click Generate') openAddModal(p);
+        }
+
+        // Import & Export Handlers
+        function exportStaticCsv() {
+            let csv = 'Title,Website,Username,Password,Category,Notes\n';
+            vault.forEach(i => {
+                csv += `"${i.title}","${i.website || ''}","${i.username}","${i.pass}","${i.category}",""\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'securepass_vault_export.csv';
+            a.click();
+        }
+
+        function exportStaticJson() {
+            const json = JSON.stringify(vault, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'securepass_vault_backup.json';
+            a.click();
+        }
+
+        function importStaticCsv() {
+            const input = document.getElementById('staticCsvInput');
+            if (!input.files || !input.files[0]) {
+                alert('Please choose a CSV file first.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split('\n').filter(l => l.trim().length > 0);
+                let added = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(',').map(c => c.replace(/^"|"$/g, '').trim());
+                    if (cols.length >= 4 && cols[0]) {
+                        vault.push({
+                            id: Date.now() + i,
+                            title: cols[0],
+                            website: cols[1] || '',
+                            username: cols[2] || '',
+                            pass: cols[3] || 'Password@123',
+                            category: cols[4] || 'Personal',
+                            isFav: false,
+                            date: new Date().toISOString().split('T')[0],
+                            ageDays: 0
+                        });
+                        added++;
+                    }
+                }
+                persistVault();
+                alert(`Successfully imported ${added} credentials into your vault!`);
+                navigateTo('vault');
+            };
+            reader.readAsText(input.files[0]);
         }
 
         // On Load Init

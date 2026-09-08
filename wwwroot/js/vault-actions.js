@@ -1,9 +1,31 @@
-﻿/**
+/**
  * SecurePass Vault Interactive Actions (Reveal, Copy, Star, Duplicate Detection, SweetAlerts)
  */
 const SecurePassVault = {
     async revealPassword(id, buttonEl, targetPasswordEl, token) {
         try {
+            // If already revealed -> immediate toggle back to masked!
+            if (targetPasswordEl.classList.contains('password-revealed')) {
+                targetPasswordEl.innerText = '••••••••••••';
+                targetPasswordEl.classList.remove('password-revealed');
+                targetPasswordEl.classList.add('password-masked');
+                targetPasswordEl.style.color = '';
+                targetPasswordEl.style.fontWeight = '';
+                buttonEl.innerHTML = '<i class="fa-solid fa-eye"></i>';
+                return;
+            }
+
+            // If already fetched and cached in dataset -> reveal instantly
+            if (targetPasswordEl.dataset.realpass) {
+                targetPasswordEl.innerText = targetPasswordEl.dataset.realpass;
+                targetPasswordEl.classList.remove('password-masked');
+                targetPasswordEl.classList.add('password-revealed');
+                targetPasswordEl.style.color = '#22C55E';
+                targetPasswordEl.style.fontWeight = 'bold';
+                buttonEl.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+                return;
+            }
+
             buttonEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
             buttonEl.disabled = true;
 
@@ -13,6 +35,7 @@ const SecurePassVault = {
 
             const data = await res.json();
             if (data.success) {
+                targetPasswordEl.dataset.realpass = data.password;
                 targetPasswordEl.innerText = data.password;
                 targetPasswordEl.classList.remove('password-masked');
                 targetPasswordEl.classList.add('password-revealed');
