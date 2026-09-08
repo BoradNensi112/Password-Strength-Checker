@@ -1,13 +1,39 @@
-﻿/**
+/**
  * Cyber UI Interactivity (Sidebar toggle, theme toggle, and real-time inactivity Auto-Lock watchdog)
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Sidebar toggle for mobile
+    // 1. Sidebar toggle for mobile with dark backdrop
     const toggleBtn = document.getElementById('sidebarToggleBtn');
     const sidebar = document.querySelector('.app-sidebar');
+    
+    // Create backdrop element if it doesn't exist
+    let backdrop = document.querySelector('.sidebar-backdrop');
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.className = 'sidebar-backdrop';
+        document.body.appendChild(backdrop);
+    }
+
     if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', function() {
-            sidebar.classList.toggle('show');
+        toggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = sidebar.classList.toggle('show');
+            backdrop.classList.toggle('show', isOpen);
+        });
+
+        backdrop.addEventListener('click', function() {
+            sidebar.classList.remove('show');
+            backdrop.classList.remove('show');
+        });
+
+        // Auto close on mobile link click
+        sidebar.querySelectorAll('.nav-link-item').forEach(function(link) {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 992) {
+                    sidebar.classList.remove('show');
+                    backdrop.classList.remove('show');
+                }
+            });
         });
     }
 

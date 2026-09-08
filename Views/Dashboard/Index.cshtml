@@ -19,9 +19,9 @@
 </div>
 
 <!-- Stat Cards Grid -->
-<div class="row g-3 mb-4">
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="cyber-card stat-card">
+<div class="row g-2 g-md-3 mb-4">
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="cyber-card stat-card h-100">
             <div class="stat-info">
                 <div class="stat-label">Total Passwords</div>
                 <div class="stat-value">@Model.TotalPasswords</div>
@@ -32,8 +32,8 @@
         </div>
     </div>
 
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="cyber-card stat-card">
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="cyber-card stat-card h-100">
             <div class="stat-info">
                 <div class="stat-label">Strong & Elite</div>
                 <div class="stat-value text-success">@(Model.StrongPasswords + Model.VeryStrongPasswords)</div>
@@ -44,8 +44,8 @@
         </div>
     </div>
 
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="cyber-card stat-card">
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="cyber-card stat-card h-100">
             <div class="stat-info">
                 <div class="stat-label">Medium Risk</div>
                 <div class="stat-value text-warning">@Model.MediumPasswords</div>
@@ -56,8 +56,8 @@
         </div>
     </div>
 
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="cyber-card stat-card">
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="cyber-card stat-card h-100">
             <div class="stat-info">
                 <div class="stat-label">Weak / At Risk</div>
                 <div class="stat-value text-danger">@Model.WeakPasswords</div>
@@ -68,8 +68,8 @@
         </div>
     </div>
 
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="cyber-card stat-card">
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="cyber-card stat-card h-100">
             <div class="stat-info">
                 <div class="stat-label">Avg Strength</div>
                 <div class="stat-value text-info">@Model.AverageStrengthScore<span class="fs-6 text-muted">/100</span></div>
@@ -80,8 +80,8 @@
         </div>
     </div>
 
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="cyber-card stat-card">
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="cyber-card stat-card h-100">
             <div class="stat-info">
                 <div class="stat-label">Health Score</div>
                 <div class="stat-value @(Model.HealthScore >= 80 ? "text-success" : Model.HealthScore >= 60 ? "text-warning" : "text-danger")">
@@ -96,7 +96,7 @@
 </div>
 
 <!-- Charts Row -->
-<div class="row g-4 mb-4">
+<div class="row g-3 g-md-4 mb-4">
     <div class="col-lg-4">
         <div class="cyber-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -163,7 +163,8 @@
 
     @if (Model.RecentPasswords.Any())
     {
-        <div class="cyber-table-wrapper">
+        <!-- Desktop Table View (>= 768px) -->
+        <div class="cyber-table-wrapper d-none d-md-block">
             <table class="cyber-table">
                 <thead>
                     <tr>
@@ -245,6 +246,77 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Mobile Cards View (< 768px) -->
+        <div class="mobile-vault-cards d-md-none d-flex flex-column gap-3">
+            @foreach (var item in Model.RecentPasswords)
+            {
+                <div class="mobile-vault-card">
+                    <div class="mobile-vault-header">
+                        <div class="mobile-vault-title">
+                            <i class="fa-solid @(item.Category == "Banking" ? "fa-building-columns text-success" : item.Category == "Social" ? "fa-share-nodes text-primary" : item.Category == "Work" ? "fa-briefcase text-info" : "fa-key text-warning")"></i>
+                            <a asp-controller="Vault" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-theme-primary">
+                                @item.Title
+                            </a>
+                            @if (item.IsFavorite)
+                            {
+                                <i class="fa-solid fa-star text-warning small"></i>
+                            }
+                        </div>
+                        <span class="badge-category">@item.Category</span>
+                    </div>
+
+                    <div class="mobile-vault-data-box">
+                        <div class="mobile-data-row">
+                            <span class="mobile-data-label">Username / Email</span>
+                            <span class="cell-username-text small">@(item.Username ?? "—")</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(item.Website))
+                        {
+                            <div class="mobile-data-row">
+                                <span class="mobile-data-label">Website</span>
+                                <span class="cell-website-link small text-truncate" style="max-width: 180px;">@item.Website</span>
+                            </div>
+                        }
+                        <div class="mobile-data-row">
+                            <span class="mobile-data-label">Strength</span>
+                            <div class="d-flex align-items-center gap-1">
+                                @if (item.PasswordStrength == "Very Strong")
+                                {
+                                    <span class="badge-strength very-strong py-0 px-2" style="font-size: 0.75rem;">Very Strong</span>
+                                }
+                                else if (item.PasswordStrength == "Strong")
+                                {
+                                    <span class="badge-strength strong py-0 px-2" style="font-size: 0.75rem;">Strong</span>
+                                }
+                                else if (item.PasswordStrength == "Medium")
+                                {
+                                    <span class="badge-strength medium py-0 px-2" style="font-size: 0.75rem;">Medium</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-strength weak py-0 px-2" style="font-size: 0.75rem;">Weak</span>
+                                }
+                                <span class="fw-bold text-theme-primary small">@item.StrengthScore/100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-vault-footer">
+                        <span class="badge-age"><i class="fa-regular fa-calendar text-info me-1"></i> @item.CreatedAt.ToString("MMM dd, yyyy")</span>
+                        <div class="d-flex gap-2">
+                            <a asp-controller="Vault" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-cyber-outline py-1 px-3">
+                                <i class="fa-solid fa-eye me-1"></i> Details
+                            </a>
+                            <a asp-controller="Vault" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-cyber-outline py-1 px-3">
+                                <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
     }
     else
     {
