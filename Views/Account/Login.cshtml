@@ -1,4 +1,4 @@
-﻿@model SecurePass.Models.ViewModels.LoginViewModel
+@model SecurePass.Models.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Cyber Shield Login";
     Layout = "_AuthLayout";
@@ -24,12 +24,10 @@
         </div>
 
         <div class="mt-4">
-            <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: rgba(109, 93, 246, 0.1); border: 1px solid rgba(109, 93, 246, 0.25);">
-                <i class="fa-solid fa-lock-open text-primary fs-4"></i>
-                <div>
-                    <div class="fw-semibold text-theme-primary small">Demo Credentials Preloaded</div>
-                    <div class="text-muted small">demo@securepass.io / Secure@Pass2026!</div>
-                </div>
+            <div class="d-flex flex-column gap-2 text-secondary small">
+                <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-shield-check text-success"></i> End-to-End Zero-Knowledge Architecture</div>
+                <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-shield-check text-success"></i> Military-Grade AES-256-GCM Cryptography</div>
+                <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-shield-check text-success"></i> Live Entropy & Vulnerability Analysis</div>
             </div>
         </div>
     </div>
