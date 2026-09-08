@@ -171,7 +171,7 @@
 
                     <!-- 4 Stat Cards -->
                     <div class="row g-3 mb-4">
-                        <div class="col-xl-3 col-sm-6">
+                        <div class="col-xl-3 col-6">
                             <div class="cyber-card stat-card h-100" onclick="navigateTo('vault')" style="cursor: pointer;">
                                 <div class="stat-info">
                                     <div class="stat-label">Total Passwords</div>
@@ -180,7 +180,7 @@
                                 <div class="stat-icon purple"><i class="fa-solid fa-vault"></i></div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-sm-6">
+                        <div class="col-xl-3 col-6">
                             <div class="cyber-card stat-card h-100" onclick="navigateTo('health')" style="cursor: pointer;">
                                 <div class="stat-info">
                                     <div class="stat-label">Vault Health</div>
@@ -189,7 +189,7 @@
                                 <div class="stat-icon green"><i class="fa-solid fa-heart-pulse"></i></div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-sm-6">
+                        <div class="col-xl-3 col-6">
                             <div class="cyber-card stat-card h-100" onclick="navigateTo('health')" style="cursor: pointer;">
                                 <div class="stat-info">
                                     <div class="stat-label">Weak Credentials</div>
@@ -198,7 +198,7 @@
                                 <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-sm-6">
+                        <div class="col-xl-3 col-6">
                             <div class="cyber-card stat-card h-100" onclick="navigateTo('health')" style="cursor: pointer;">
                                 <div class="stat-info">
                                     <div class="stat-label">Expired (>90d)</div>
@@ -246,7 +246,8 @@
                             <h5 class="text-theme-primary fw-bold m-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Vault Credentials</h5>
                             <button class="btn btn-sm btn-cyber-outline py-1 px-3" onclick="navigateTo('vault')">View All &rarr;</button>
                         </div>
-                        <div class="cyber-table-wrapper">
+                        <!-- Desktop Table (>= 768px) -->
+                        <div class="cyber-table-wrapper d-none d-md-block">
                             <table class="cyber-table">
                                 <thead>
                                     <tr>
@@ -265,6 +266,10 @@
                                     <!-- Populated dynamically -->
                                 </tbody>
                             </table>
+                        </div>
+                        <!-- Mobile Cards (< 768px) -->
+                        <div class="mobile-vault-cards d-md-none d-flex flex-column gap-3" id="dashMobileCards">
+                            <!-- Populated dynamically -->
                         </div>
                     </div>
                 </div>
@@ -299,7 +304,8 @@
                         </div>
                     </div>
 
-                    <div class="cyber-table-wrapper">
+                    <!-- Desktop Table (>= 768px) -->
+                    <div class="cyber-table-wrapper d-none d-md-block">
                         <table class="cyber-table">
                             <thead>
                                 <tr>
@@ -318,6 +324,11 @@
                                 <!-- Populated dynamically -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Mobile Cards (< 768px) -->
+                    <div class="mobile-vault-cards d-md-none d-flex flex-column gap-3" id="vaultMobileCards">
+                        <!-- Populated dynamically -->
                     </div>
                 </div>
 
@@ -874,6 +885,101 @@
             navigator.clipboard.writeText(val).then(() => alert('Password copied to clipboard!'));
         }
 
+        function renderCardHtml(item) {
+            const analysis = SecurePassAnalyzer.analyze(item.pass);
+            const isExp = item.ageDays >= 90;
+            const strengthClass = analysis.strengthLevel === 'Very Strong' ? 'very-strong' : analysis.strengthLevel.toLowerCase();
+            const iconMap = {
+                'Very Strong': 'fa-shield-halved',
+                'Strong': 'fa-shield-check',
+                'Medium': 'fa-triangle-exclamation',
+                'Weak': 'fa-circle-exclamation'
+            };
+
+            return `
+                <div class="mobile-vault-card">
+                    <div class="mobile-vault-header">
+                        <div class="mobile-vault-title">
+                            <button type="button" class="btn btn-sm btn-link p-0 text-warning me-1" onclick="toggleFavorite(${item.id})">
+                                <i class="fa-${item.isFav ? 'solid' : 'regular'} fa-star"></i>
+                            </button>
+                            <span>${item.title}</span>
+                        </div>
+                        <span class="badge-category">${item.category}</span>
+                    </div>
+
+                    <div class="mobile-vault-data-box">
+                        ${item.website ? `
+                            <div class="mobile-data-row">
+                                <span class="mobile-data-label">Website</span>
+                                <a href="${item.website}" target="_blank" class="cell-website-link small d-inline-flex align-items-center gap-1 text-truncate" style="max-width: 190px;">
+                                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i> ${item.website}
+                                </a>
+                            </div>
+                        ` : ''}
+                        <div class="mobile-data-row">
+                            <span class="mobile-data-label">Username</span>
+                            <span class="cell-username-text small">${item.username}</span>
+                        </div>
+                        <div class="mobile-data-row">
+                            <span class="mobile-data-label">Password</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="cell-masked-dots" id="pass-mob-dots-${item.id}">••••••••••••</span>
+                                <button type="button" class="btn btn-sm btn-link text-primary p-0" title="Reveal" onclick="toggleRevealMob(${item.id})">
+                                    <i class="fa-solid fa-eye" id="eye-mob-${item.id}"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-link text-info p-0" title="Copy" onclick="copyValue('${item.pass}')">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mobile-data-row">
+                            <span class="mobile-data-label">Strength</span>
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="badge-strength ${strengthClass} py-0 px-2" style="font-size: 0.75rem;">
+                                    <i class="fa-solid ${iconMap[analysis.strengthLevel] || 'fa-shield-halved'} me-1"></i> ${analysis.strengthLevel}
+                                </span>
+                                <span class="fw-bold text-theme-primary small">${analysis.score}/100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-vault-footer">
+                        <div>
+                            ${isExp ? `<span class="badge bg-danger text-theme-primary small"><i class="fa-solid fa-clock-rotate-left me-1"></i> ${item.ageDays}d (Expired)</span>` : `<span class="badge-age"><i class="fa-regular fa-clock text-info me-1"></i> ${item.ageDays === 0 ? 'Today' : item.ageDays + 'd ago'}</span>`}
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-cyber-danger py-1 px-3" title="Delete" onclick="deleteItem(${item.id})">
+                                <i class="fa-solid fa-trash-can me-1"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleRevealMob(id) {
+            const span = document.getElementById(`pass-mob-dots-${id}`);
+            const icon = document.getElementById(`eye-mob-${id}`);
+            const item = vault.find(i => i.id === id);
+            if (!item) return;
+
+            if (span.innerText === '••••••••••••') {
+                span.innerText = item.pass;
+                span.className = 'cell-username-text small font-monospace';
+                icon.className = 'fa-solid fa-eye-slash';
+                setTimeout(() => {
+                    span.innerText = '••••••••••••';
+                    span.className = 'cell-masked-dots';
+                    icon.className = 'fa-solid fa-eye';
+                }, 12000);
+            } else {
+                span.innerText = '••••••••••••';
+                span.className = 'cell-masked-dots';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
         // Render Dashboard
         function renderDashboard() {
             document.getElementById('dashTotalCount').innerText = vault.length;
@@ -890,7 +996,9 @@
             document.getElementById('dashExpiredCount').innerText = exp;
 
             const tbody = document.getElementById('dashTableBody');
-            tbody.innerHTML = vault.slice(0, 5).map(renderRowHtml).join('');
+            if (tbody) tbody.innerHTML = vault.slice(0, 5).map(renderRowHtml).join('');
+            const mobCards = document.getElementById('dashMobileCards');
+            if (mobCards) mobCards.innerHTML = vault.slice(0, 5).map(renderCardHtml).join('');
         }
 
         // Render Vault
@@ -905,10 +1013,13 @@
             });
 
             const tbody = document.getElementById('fullVaultTableBody');
+            const mobCards = document.getElementById('vaultMobileCards');
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">No accounts match search criteria.</td></tr>`;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">No accounts match search criteria.</td></tr>`;
+                if (mobCards) mobCards.innerHTML = `<div class="text-center py-4 text-muted">No accounts match search criteria.</div>`;
             } else {
-                tbody.innerHTML = filtered.map(renderRowHtml).join('');
+                if (tbody) tbody.innerHTML = filtered.map(renderRowHtml).join('');
+                if (mobCards) mobCards.innerHTML = filtered.map(renderCardHtml).join('');
             }
         }
 
